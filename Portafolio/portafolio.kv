@@ -248,146 +248,22 @@ FloatLayout:
                     pos: self.pos
                     size: self.size
                     radius: [10]  # Bordes redondeados
-
-    AnchorLayout:
-        anchor_x: "center"
-        anchor_y: "top"
-        padding: dp(10), dp(70), dp(10), 0 
+    ScrollView:
+        size_hint: 1, None
+        height: root.height - dp(100)
+        do_scroll_x: False
 
         MDGridLayout:
+            id: proyectos_grid
             cols: 1
             spacing: dp(20)
-            size_hint: None, None
-            size: self.minimum_size
+            size_hint_y: None
+            size_hint_x: 1
+            height: self.minimum_height
+            width: self.minimum_width
+            pos_hint: {"center_x": 0.5}
+            padding: dp(5)
 
-            MDCard:
-                size_hint: None, None
-                size: "320dp", "170dp"
-                radius: [15,]
-                padding: 0
-                md_bg_color: (225/255, 225/255, 225/255, 1)
-
-                BoxLayout:
-                    orientation: "vertical"
-                    spacing: dp(5)
-                    padding: 0
-
-                    FitImage:
-                        source: "assets/img/luna.jpg"
-                        size_hint_y: None
-                        height: dp(80)
-                        radius: [15, 15, 0, 0]
-                        allow_stretch: True
-                        keep_ratio: False
-
-                    MDLabel:
-                        text: "Proyecto 1"
-                        font_style: "H6"
-                        size_hint_y: None
-                        height: self.texture_size[1]
-                        halign: "center"  # Centra el texto horizontalmente
-                        valign: "middle"  # Centra el texto verticalmente
-                        pos_hint: {"center_x": 0.5}  # Centra el label en el eje X
-
-                    MDLabel:
-                        text: "Descripción breve del proyecto 1"
-                        theme_text_color: "Secondary"
-                        size_hint_y: None
-                        height: self.texture_size[1]
-                        halign: "center"  # Centra el texto horizontalmente
-                        valign: "middle"  # Centra el texto verticalmente
-                        pos_hint: {"center_x": 0.5}  # Centra el label en el eje X
-
-                    SilentRectangleFlatButton:
-                        text: "Ver más"
-                        pos_hint: {"center_x": 0.5, "center_y": 0.5}
-                        on_release: root.abrir_enlace("https://github.com/tuusuario/proyecto1")
-
-            MDCard:
-                size_hint: None, None
-                size: "320dp", "170dp"
-                radius: [15,]
-                padding: 0
-                md_bg_color: (225/255, 225/255, 225/255, 1)
-
-                BoxLayout:
-                    orientation: "vertical"
-                    spacing: dp(5)
-                    padding: 0
-
-                    FitImage:
-                        source: "assets/img/luna.jpg"
-                        size_hint_y: None
-                        height: dp(80)
-                        radius: [15, 15, 0, 0]
-                        allow_stretch: True
-                        keep_ratio: False
-
-                    MDLabel:
-                        text: "Proyecto 2"
-                        font_style: "H6"
-                        size_hint_y: None
-                        height: self.texture_size[1]
-                        halign: "center"  # Centra el texto horizontalmente
-                        valign: "middle"  # Centra el texto verticalmente
-                        pos_hint: {"center_x": 0.5}  # Centra el label en el eje X
-
-                    MDLabel:
-                        text: "Descripción breve del proyecto 2"
-                        theme_text_color: "Secondary"
-                        size_hint_y: None
-                        height: self.texture_size[1]
-                        halign: "center"  # Centra el texto horizontalmente
-                        valign: "middle"  # Centra el texto verticalmente
-                        pos_hint: {"center_x": 0.5}  # Centra el label en el eje X
-
-                    SilentRectangleFlatButton:
-                        text: "Ver más"
-                        pos_hint: {"center_x": 0.5, "center_y": 0.5}
-                        on_release: root.abrir_enlace("https://github.com/tuusuario/proyecto2")
-
-            MDCard:
-                size_hint: None, None
-                size: "320dp", "170dp"
-                radius: [15,]
-                padding: 0
-                md_bg_color: (225/255, 225/255, 225/255, 1)
-
-                BoxLayout:
-                    orientation: "vertical"
-                    spacing: dp(5)
-                    padding: 0
-
-                    FitImage:
-                        source: "assets/img/luna.jpg"
-                        size_hint_y: None
-                        height: dp(80)
-                        radius: [15, 15, 0, 0]
-                        allow_stretch: True
-                        keep_ratio: False
-
-                    MDLabel:
-                        text: "Proyecto 3"
-                        font_style: "H6"
-                        size_hint_y: None
-                        height: self.texture_size[1]
-                        halign: "center"  # Centra el texto horizontalmente
-                        valign: "middle"  # Centra el texto verticalmente
-                        pos_hint: {"center_x": 0.5}  # Centra el label en el eje X
-
-                    MDLabel:
-                        text: "Descripción breve del proyecto 3"
-                        theme_text_color: "Secondary"
-                        size_hint_y: None
-                        height: self.texture_size[1]
-                        halign: "center"  # Centra el texto horizontalmente
-                        valign: "middle"  # Centra el texto verticalmente
-                        pos_hint: {"center_x": 0.5}  # Centra el label en el eje X
-
-                    SilentRectangleFlatButton:
-                        text: "Ver más"
-                        pos_hint: {"center_x": 0.5, "center_y": 0.5}
-                        on_release: root.abrir_enlace("https://github.com/tuusuario/proyecto3")
 
 <HabilidadesScreen>:
     FloatLayout:
