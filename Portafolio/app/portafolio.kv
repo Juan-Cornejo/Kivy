@@ -78,9 +78,12 @@ FloatLayout:
             on_release: app.toggle_nav_drawer()
 
 <FondoWidget>:
+    # propiedades enlazadas (vienen de FondoWidget en Python)
+    # no necesitas declarar aquí, solo las usas como root.prop
     FloatLayout:
         Image:
-            source: "../assets/img/perfil.jpg"
+            id: foto_perfil
+            source: root.foto_source
             allow_stretch: True
             keep_ratio: False
             size_hint: None, None
@@ -105,8 +108,8 @@ FloatLayout:
                 StencilPop
 
         Label:
-            text: "Nombre Apellido"
-            color: (0, 0, 0, 1)  # Negro
+            text: root.nombre_text or "Nombre Apellido"
+            color: (0, 0, 0, 1)
             size_hint: None, None
             size: dp(210), dp(30)
             pos_hint: {"center_x": 0.5, "top": 0.68}
@@ -124,8 +127,8 @@ FloatLayout:
                     radius: [10]
 
         Label:
-            text: "Desarrollador | Programador"
-            color: (0, 0, 0, 1)  # Negro
+            text: root.profesion_text or "Desarrollador | Programador"
+            color: (0, 0, 0, 1)
             size_hint: None, None
             size: dp(210), dp(30)
             pos_hint: {"center_x": 0.5, "top": 0.60}
@@ -167,8 +170,8 @@ FloatLayout:
                 StencilPop
 
         Label:
-            text: "Bienvenido a mi portafolio"
-            color: (0, 0, 0, 1)  # Negro
+            text: root.intro_text or "Bienvenido a mi portafolio"
+            color: (0, 0, 0, 1)
             font_size: "20sp"
             size_hint: None, None
             size: dp(250), dp(30)
@@ -183,6 +186,7 @@ FloatLayout:
                     pos: self.pos
                     size: self.size
                     radius: [10]
+
 
 <SobreMiScreen>:
     BoxLayout:

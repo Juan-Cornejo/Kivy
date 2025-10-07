@@ -14,9 +14,13 @@ from kivy.utils import get_color_from_hex, platform
 from kivy.metrics import dp
 from kivy.clock import Clock
 
+# --- YA ESTABA, PERO ES IMPORTANTE ---
+import gestor  # gestor.py maneja SQLite (conexión y CRUD)
+
 # Desktop testing window size
 if platform in ("win", "linux", "macosx"):
     Window.size = (360, 640)
+
 
 class NoRippleListItem(OneLineIconListItem):
     icon = StringProperty()
@@ -38,12 +42,13 @@ class NoRippleListItem(OneLineIconListItem):
             return True
         return super().on_touch_down(touch)
 
+
 class SilentRectangleFlatButton(MDRectangleFlatButton):
     ripple_behavior = False  # Desactiva el ripple
     text_color = (0, 0, 0, 1)  # Negro
     md_bg_color = get_color_from_hex("#B4B4B4")
-    line_color = (1, 1, 1, 0) # Elimina linea azul del boton
-      
+    line_color = (1, 1, 1, 0)  # Elimina linea azul del boton
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.text = self.text
@@ -53,6 +58,7 @@ class SilentRectangleFlatButton(MDRectangleFlatButton):
             self.dispatch('on_release')
             return True
         return super().on_touch_down(touch)
+
 
 class SilentIconButton(MDIconButton):
     ripple_behavior = False
@@ -66,17 +72,92 @@ class SilentIconButton(MDIconButton):
             return True
         return super().on_touch_down(touch)
 
+
 class AnimatedButton(MDFlatButton):
     scale = NumericProperty(1)
 
+
 class FondoWidget(Screen):
+    # props enlazadas al .kv
+    nombre_text = StringProperty("")
+    profesion_text = StringProperty("")
+    intro_text = StringProperty("")
+    github_url = StringProperty("")
+    foto_source = StringProperty("../assets/img/perfil.jpg")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        print("✅ FondoWidget inicializado:", self, "desde", __file__)
+
+    def on_pre_enter(self, *args):
+        print("✅ on_pre_enter de FondoWidget")
+        # Llama en el siguiente frame (evita choques de carga con el kv)
+        Clock.schedule_once(lambda *_: self.cargar_usuario(), 0)
+
+    def cargar_usuario(self, *args):
+        print("✅ cargar_usuario existe y fue llamada")
+        try:
+            data = gestor.get_usuario()
+            print("DBG usuario:", data)
+        except Exception as e:
+            print("❌ Error cargando usuario:", e)
+            data = None
+
+        if not data:
+            self.nombre_text = "Nombre Apellido"
+            self.profesion_text = "Desarrollador | Programador"
+            self.intro_text = "Bienvenido a mi portafolio"
+            self.github_url = ""
+            self.foto_source = "../assets/img/perfil.jpg"
+            return
+
+        self.nombre_text = data.get("nombre_completo") or "Nombre Apellido"
+        self.profesion_text = data.get(
+            "profesion") or "Desarrollador | Programador"
+        self.intro_text = data.get(
+            "introduccion") or "Bienvenido a mi portafolio"
+        self.github_url = data.get("github_url") or ""
+        self.foto_source = data.get(
+            "foto_perfil") or "../assets/img/perfil.jpg"
+
     def abrir_github(self):
         import webbrowser
-        webbrowser.open("https://github.com/tuusuario")
+        if self.github_url:
+            webbrowser.open(self.github_url)
+
+
+def cargar_usuario(self):
+    try:
+        data = gestor.get_usuario()  # debe devolver dict con las claves de BD
+    except Exception as e:
+        print("Error cargando usuario:", e)
+        data = None
+
+    if not data:
+        self.nombre_text = "Nombre Apellido"
+        self.profesion_text = "Desarrollador | Programador"
+        self.intro_text = "Bienvenido a mi portafolio"
+        self.github_url = ""
+        self.foto_source = "../assets/img/perfil.jpg"
+        return
+
+    # 🔧 Ajustado a schema.sql
+    self.nombre_text = data.get("nombre_completo") or "Nombre Apellido"
+    self.profesion_text = data.get(
+        "profesion") or "Desarrollador | Programador"
+    self.intro_text = data.get("introduccion") or "Bienvenido a mi portafolio"
+    self.github_url = data.get("github_url") or ""
+    self.foto_source = data.get("foto_perfil") or "../assets/img/perfil.jpg"
+
+    def abrir_github(self):
+        import webbrowser
+        if self.github_url:
+            webbrowser.open(self.github_url)
 
 
 class SobreMiScreen(Screen):
     pass
+
 
 class CardListScreen(Screen):
     grid_id = ""
@@ -127,9 +208,11 @@ class CardListScreen(Screen):
             label.font_style = font_style
         if theme_text_color:
             label.theme_text_color = theme_text_color
-        label.bind(texture_size=lambda instance, value: instance.setter("height")(instance, value[1]))
+        label.bind(texture_size=lambda instance,
+                   value: instance.setter("height")(instance, value[1]))
         if wrap:
-            label.bind(width=lambda instance, value: instance.setter("text_size")(instance, (value, None)))
+            label.bind(width=lambda instance, value: instance.setter(
+                "text_size")(instance, (value, None)))
         return label
 
     def _make_image(self, source, image_height):
@@ -153,7 +236,8 @@ class CardListScreen(Screen):
             return padding_value * 2
 
         def update_height(instance, value):
-            top_bottom = _resolve_padding(card.padding) if hasattr(card, "padding") else 0
+            top_bottom = _resolve_padding(
+                card.padding) if hasattr(card, "padding") else 0
             card.height = max(baseline_height, value + top_bottom)
 
         content_box.bind(minimum_height=update_height)
@@ -165,31 +249,44 @@ class CardListScreen(Screen):
     def _build_card(self, item, card_height, image_height):
         raise NotImplementedError
 
+# imagen por defecto si no hay en BD
 
+
+def _img_or_default(src: str, default="../assets/img/luna.jpg"):
+    return src if src else default
+
+
+# ---ProyectosScreen ahora lee desde SQLite con gestor.py ---
 class ProyectosScreen(CardListScreen):
     grid_id = "proyectos_grid"
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._proyectos = [
-            {"titulo": "Proyecto 1", "descripcion": "Descripcion 1", "imagen": "../assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto1"},
-            {"titulo": "Proyecto 2", "descripcion": "Descripcion 2", "imagen": "../assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto2"},
-            {"titulo": "Proyecto 3", "descripcion": "Descripcion 3", "imagen": "../assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto3"},
-            {"titulo": "Proyecto 4", "descripcion": "Descripcion 4", "imagen": "../assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto4"},
-            {"titulo": "Proyecto 5", "descripcion": "Descripcion 5", "imagen": "../assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto5"},
-            {"titulo": "Proyecto 6", "descripcion": "Descripcion 6", "imagen": "../assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto6"},
-        ]
-
     def abrir_enlace(self, url):
         import webbrowser
-
         webbrowser.open(url)
 
     def volver_home(self):
         self.manager.current = "home"
 
     def _card_data(self):
-        return self._proyectos
+        # Lee proyectos desde la BD
+        # dicts: titulo, descripcion, imagen, link, ...
+        filas = gestor.listar_proyectos()
+        data = []
+        for r in filas:
+            data.append({
+                "titulo": r.get("titulo", "(Sin título)"),
+                "descripcion": r.get("descripcion", ""),
+                "imagen": _img_or_default(r.get("imagen")),
+                "link": r.get("link", ""),
+            })
+        if not data:
+            data = [{
+                "titulo": "Aún no hay proyectos",
+                "descripcion": "Agrega un proyecto para verlo aquí.",
+                "imagen": "../assets/img/luna.jpg",
+                "link": ""
+            }]
+        return data
 
     def _build_card(self, data, card_height, image_height):
         card = MDCard(
@@ -208,9 +305,7 @@ class ProyectosScreen(CardListScreen):
         box.bind(minimum_height=box.setter("height"))
 
         img = self._make_image(data["imagen"], image_height)
-
         title = self._make_label(data["titulo"], font_style="H6")
-
         description = self._make_label(
             data["descripcion"],
             theme_text_color="Secondary",
@@ -218,11 +313,15 @@ class ProyectosScreen(CardListScreen):
         )
 
         button = MDFlatButton(
-            text="Ver mas",
+            text="Ver más",
             size_hint=(1, None),
             height=dp(42),
         )
-        button.bind(on_release=lambda instance, link=data["link"]: self.abrir_enlace(link))
+        if data.get("link"):
+            button.bind(on_release=lambda i,
+                        link=data["link"]: self.abrir_enlace(link))
+        else:
+            button.disabled = True
 
         box.add_widget(img)
         box.add_widget(title)
@@ -232,21 +331,32 @@ class ProyectosScreen(CardListScreen):
         card.add_widget(box)
         self._bind_card_height(card, box, card_height)
         return card
+# --- 🔄 FIN CAMBIO ProyectosScreen ---
 
 
+# --- 🔄 CAMBIADO: HabilidadesScreen ahora lee desde SQLite con gestor.py ---
 class HabilidadesScreen(CardListScreen):
     grid_id = "habilidades_grid"
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._habilidades = [
-            {"titulo": "HTML", "nivel": "Nivel: Avanzado", "descripcion": "Maquetacion responsive, accesibilidad y optimizacion SEO.", "imagen": "../assets/img/html.jpg"},
-            {"titulo": "CSS", "nivel": "Nivel: Intermedio", "descripcion": "Flexbox, Grid y animaciones para interfaces modernas.", "imagen": "../assets/img/css.jpg"},
-            {"titulo": "Python", "nivel": "Nivel: Intermedio", "descripcion": "Automatizacion, APIs y desarrollo de aplicaciones con Kivy/KivyMD.", "imagen": "../assets/img/python.jpg"},
-        ]
-
     def _card_data(self):
-        return self._habilidades
+        filas = gestor.listar_habilidades()  # dicts: id, nombre, nivel, creado_en
+        data = []
+        for r in filas:
+            data.append({
+                "titulo": r.get("nombre", "(Sin nombre)"),
+                "nivel": f"Nivel: {r.get('nivel', 1)}",
+                # si no tienes esta col en BD, quedará vacío
+                "descripcion": r.get("descripcion", ""),
+                "imagen": "../assets/img/python.jpg",     # imagen genérica para skills
+            })
+        if not data:
+            data = [{
+                "titulo": "Aún no hay habilidades",
+                "nivel": "Nivel: —",
+                "descripcion": "Agrega habilidades para verlas aquí.",
+                "imagen": "../assets/img/python.jpg",
+            }]
+        return data
 
     def _build_card(self, data, card_height, image_height):
         card = MDCard(
@@ -265,7 +375,6 @@ class HabilidadesScreen(CardListScreen):
         box.bind(minimum_height=box.setter("height"))
 
         img = self._make_image(data["imagen"], image_height)
-
         title = self._make_label(data["titulo"], font_style="H6")
         level = self._make_label(data["nivel"], theme_text_color="Secondary")
         description = self._make_label(
@@ -282,15 +391,17 @@ class HabilidadesScreen(CardListScreen):
         card.add_widget(box)
         self._bind_card_height(card, box, card_height)
         return card
+# --- 🔄 FIN CAMBIO HabilidadesScreen ---
 
 
+# --- 🔄 CAMBIADO: build() ahora inicializa la BD y no fuerza tema/colores ---
 class PortafolioApp(MDApp):
     def build(self):
-        self.theme_cls.primary_palette = "Blue"
-        self.theme_cls.theme_style = "Light"
-        
-        MDRectangleFlatButton.uppercase = False
-        
+        # Inicializa la base de datos (usa data/schema.sql si existe)
+        gestor.init_db(use_schema=True)
+        # gestor.seed_demo()  # opcional para cargar datos de ejemplo
+
+        # La UI y estilos los controlas en el archivo .kv
         return Builder.load_file("portafolio.kv")
 
     def toggle_nav_drawer(self):
@@ -299,7 +410,8 @@ class PortafolioApp(MDApp):
             nav_drawer.set_state("close")
         else:
             nav_drawer.set_state("open")
-    
+# --- 🔄 FIN CAMBIO build() ---
+
 
 if __name__ == "__main__":
     PortafolioApp().run()
