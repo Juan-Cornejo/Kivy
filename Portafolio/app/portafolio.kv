@@ -80,7 +80,7 @@ FloatLayout:
 <FondoWidget>:
     FloatLayout:
         Image:
-            source: "assets/img/perfil.jpg"
+            source: "../assets/img/perfil.jpg"
             allow_stretch: True
             keep_ratio: False
             size_hint: None, None
@@ -156,7 +156,7 @@ FloatLayout:
                 StencilUse
             canvas:
                 Rectangle:
-                    source: "assets/img/github.png"
+                    source: "../assets/img/github.png"
                     size: self.size
                     pos: self.pos
             canvas.after:
@@ -253,14 +253,6 @@ FloatLayout:
 
                         MDLabel:
                             text: "Me enfoco en construir interfaces funcionales y optimizadas para distintas pantallas, integrando buenas practicas de codigo y diseno."
-                            theme_text_color: "Secondary"
-                            halign: "justify"
-                            size_hint_y: None
-                            text_size: self.width, None
-                            height: self.texture_size[1]
-
-                        MDLabel:
-                            text: "Fuera del trabajo, me gusta explorar nuevas tendencias tecnologicas y compartir conocimiento con otros desarrolladores."
                             theme_text_color: "Secondary"
                             halign: "justify"
                             size_hint_y: None

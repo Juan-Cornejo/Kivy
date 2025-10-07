@@ -172,12 +172,12 @@ class ProyectosScreen(CardListScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._proyectos = [
-            {"titulo": "Proyecto 1", "descripcion": "Descripcion 1", "imagen": "assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto1"},
-            {"titulo": "Proyecto 2", "descripcion": "Descripcion 2", "imagen": "assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto2"},
-            {"titulo": "Proyecto 3", "descripcion": "Descripcion 3", "imagen": "assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto3"},
-            {"titulo": "Proyecto 4", "descripcion": "Descripcion 1", "imagen": "assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto1"},
-            {"titulo": "Proyecto 5", "descripcion": "Descripcion 2", "imagen": "assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto2"},
-            {"titulo": "Proyecto 6", "descripcion": "Descripcion 3", "imagen": "assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto3"},
+            {"titulo": "Proyecto 1", "descripcion": "Descripcion 1", "imagen": "../assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto1"},
+            {"titulo": "Proyecto 2", "descripcion": "Descripcion 2", "imagen": "../assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto2"},
+            {"titulo": "Proyecto 3", "descripcion": "Descripcion 3", "imagen": "../assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto3"},
+            {"titulo": "Proyecto 4", "descripcion": "Descripcion 4", "imagen": "../assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto4"},
+            {"titulo": "Proyecto 5", "descripcion": "Descripcion 5", "imagen": "../assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto5"},
+            {"titulo": "Proyecto 6", "descripcion": "Descripcion 6", "imagen": "../assets/img/luna.jpg", "link": "https://github.com/tuusuario/proyecto6"},
         ]
 
     def abrir_enlace(self, url):
@@ -240,9 +240,9 @@ class HabilidadesScreen(CardListScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._habilidades = [
-            {"titulo": "HTML", "nivel": "Nivel: Avanzado", "descripcion": "Maquetacion responsive, accesibilidad y optimizacion SEO.", "imagen": "assets/img/html.jpg"},
-            {"titulo": "CSS", "nivel": "Nivel: Intermedio", "descripcion": "Flexbox, Grid y animaciones para interfaces modernas.", "imagen": "assets/img/css.jpg"},
-            {"titulo": "Python", "nivel": "Nivel: Intermedio", "descripcion": "Automatizacion, APIs y desarrollo de aplicaciones con Kivy/KivyMD.", "imagen": "assets/img/python.jpg"},
+            {"titulo": "HTML", "nivel": "Nivel: Avanzado", "descripcion": "Maquetacion responsive, accesibilidad y optimizacion SEO.", "imagen": "../assets/img/html.jpg"},
+            {"titulo": "CSS", "nivel": "Nivel: Intermedio", "descripcion": "Flexbox, Grid y animaciones para interfaces modernas.", "imagen": "../assets/img/css.jpg"},
+            {"titulo": "Python", "nivel": "Nivel: Intermedio", "descripcion": "Automatizacion, APIs y desarrollo de aplicaciones con Kivy/KivyMD.", "imagen": "../assets/img/python.jpg"},
         ]
 
     def _card_data(self):
