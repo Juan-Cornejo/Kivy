@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     profesion TEXT NOT NULL,
     github_url TEXT NOT NULL,
     foto_perfil TEXT NOT NULL,
+    mensaje_bienvenida TEXT NOT NULL,
     introduccion TEXT NOT NULL,
     descripcion TEXT NOT NULL
 );
