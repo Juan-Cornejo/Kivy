@@ -1,26 +1,132 @@
-# 📋 Plan de Trabajo - Aplicación Portafolio (Kivy / KivyMD)
+📋 Plan de Implementación - Aplicación Portafolio Móvil (Kivy / KivyMD)
 
-| **Fase / Tarea** | **Responsable** | **Duración (horas)** | **Inicio** | **Término** | **Estado** | **Objetivo / Entregable** |
-|------------------|-----------------|----------------------:|-------------|--------------|-------------|-----------------------------|
-| **Fase 1: Preparación** |||||||
-| Crear estructura base de `main.py` | Juan Cornejo | 2 | 07/10 | 07/10 | ✅ Completado | Proyecto base ejecutable. |
-| Configurar entorno y dependencias (Kivy, KivyMD) | Juan Cornejo | 1 | 07/10 | 07/10 | ✅ Completado | Entorno de desarrollo funcional. |
-| **Fase 2: Base de datos y persistencia** |||||||
-| Crear base SQLite y tablas (`usuario`, `proyectos`, `habilidades`) | *Por asignar* | 3 | 08/10 | 08/10 | 🔄 En progreso | Archivo `proyectos.db` generado correctamente. |
-| Integrar funciones CRUD básicas | *Por asignar* | 4 | 09/10 | 09/10 | ⏳ Pendiente | CRUD operativo en consola o app. |
-| **Fase 3: Interfaz y navegación** |||||||
-| Diseñar pantalla de inicio y menú de navegación | Juan Cornejo | 4 | 10/10 | 10/10 | ✅ Completado | Navegación entre secciones funcional. |
-| Conectar botones del menú con pantallas | Juan Cornejo | 3 | 11/10 | 11/10 | ✅ Completado | Menú enlazado correctamente. |
-| **Fase 4: Funcionalidades de contenido** |||||||
-| Listar proyectos desde la base | *Por asignar* | 5 | 12/10 | 13/10 | ⏳ Pendiente | Lista funcional con scroll. |
-| Crear/editar proyectos (formulario) | *Por asignar* | 5 | 14/10 | 15/10 | ⏳ Pendiente | Datos persistentes en SQLite. |
-| Mostrar lista de habilidades | Ambos | 3 | 16/10 | 16/10 | ✅ Completado | Habilidades visibles y ordenadas. |
-| **Fase 5: Pruebas y documentación** |||||||
-| Pruebas funcionales y corrección de errores | Ambos | 4 | 17/10 | 17/10 | ⏳ Pendiente | App estable y sin fallos. |
-| Redacción de documentación (README, roles, plan) | Ambos | 3 | 18/10 | 18/10 | 🔄 En progreso | Entrega lista para presentación. |
+📅 Última actualización: 09/10/2025
+✍️ Formato: Markdown (compatible con GitHub, Notion o cualquier visor .md)
 
----
+🧩 Fase 1: Preparación
 
-📅 **Última actualización:** 07/10/2025  
-✍️ **Formato:** Markdown (compatible con GitHub, Notion o cualquier visor `.md`)
+Tareas:
 
+Crear estructura base de main.py
+Responsable: Juan Cornejo
+Duración: 2 horas
+Estado: ✅ Completado
+Entregable: Proyecto base ejecutable
+
+Configurar entorno y dependencias (KivyMD)
+Responsable: Juan Cornejo
+Duración: 1 hora
+Estado: ✅ Completado
+Entregable: Entorno de desarrollo funcional
+
+🗄️ Fase 2: Base de datos y persistencia
+
+Tareas:
+
+Crear base de datos SQLite y las tablas principales
+Responsable: Sarita Marinao
+Duración: 3 horas
+Estado: 🔄 En progreso
+Entregable: Archivo proyectos.db con estructura completa
+
+Implementar funciones CRUD para todas las entidades
+Responsable: Sarita Marinao
+Duración: 4 horas
+Estado: ⏳ Pendiente
+Entregable: Operaciones CRUD funcionales
+
+🔄 Mapeo: ERD → Tablas → Tareas de implementación
+
+Tabla: usuario
+
+Columnas: id_usuario, nombre_completo, profesion, github_url, foto_perfil, mensaje_bienvenida, introduccion, descripcion
+Restricciones: id_usuario como PK
+Relación: 1:N con proyectos y habilidades
+
+Tareas:
+
+Crear tabla en SQLite
+Insertar datos de usuario por defecto
+Función para leer/actualizar el perfil del usuario
+
+Tabla: proyectos
+
+Columnas: id_proyecto, id_usuario, nombre, descripcion, url_repositorio, imagen
+Relación: FK id_usuario → usuario
+
+Tareas:
+
+Crear tabla con clave foránea
+Implementar CRUD de proyectos
+Mostrar en interfaz con scroll e imágenes
+
+Tabla: habilidades
+
+Columnas: id_habilidad, id_usuario, nombre, nivel, descripcion, imagen
+Relación: FK id_usuario → usuario
+
+Tareas:
+
+Crear tabla con clave foránea
+Implementar CRUD de habilidades
+Mostrar en sección de habilidades en interfaz
+
+🎨 Fase 3: Interfaz y navegación
+
+Tareas:
+
+Diseñar pantalla de inicio y menú de navegación
+Responsable: Juan Cornejo
+Duración: 4 horas
+Estado: ✅ Completado
+Entregable: Navegación inicial entre secciones
+
+Conectar botones del menú con cada pantalla
+Responsable: Juan Cornejo
+Duración: 3 horas
+Estado: ✅ Completado
+Entregable: Enlaces funcionales a "Inicio", "Proyectos"…
+
+🧠 Fase 4: Funcionalidades de contenido
+
+Tareas:
+
+Listar proyectos desde la base de datos
+Responsable: Sarita Marinao
+Duración: 5 horas
+Estado: ⏳ Pendiente
+Entregable: Visualización con scroll e imágenes
+
+Crear / Editar proyectos (formulario)
+Responsable: Sarita Marinao
+Duración: 5 horas
+Estado: ⏳ Pendiente
+Entregable: Formulario con persistencia en SQLite
+
+Mostrar lista de habilidades
+Responsable: Ambos
+Duración: 3 horas
+Estado: ✅ Completado
+Entregable: Sección de habilidades funcional
+
+✅ Fase 5: Pruebas y documentación
+
+Tareas:
+
+Pruebas funcionales y corrección de errores
+Responsable: Ambos
+Duración: 4 horas
+Estado: ⏳ Pendiente
+Entregable: Aplicación estable
+
+Redacción de documentación final del proyecto
+Responsable: Ambos
+Duración: 3 horas
+Estado: ✅ Completado
+Entregable: README, roles, plan de implementación
+
+📌 Notas Finales
+
+La conexión con SQLite y las funciones CRUD permitirán modificar contenido sin alterar el código fuente.
+Se sigue el modelo 1:N desde usuario hacia proyectos y habilidades, asegurando integridad referencial con claves foráneas.
+Cada integrante participó en distintas áreas, pero con enfoque colaborativo y revisión cruzada de tareas.
