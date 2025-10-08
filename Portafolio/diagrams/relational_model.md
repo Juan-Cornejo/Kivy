@@ -6,15 +6,16 @@ Este archivo describe el modelo relacional para la base de datos del proyecto. I
 
 ### **1. Tabla: `usuario`**
 
-| Columna           | Tipo de dato | Restricciones              | Comentarios                              |
-| ----------------- | ------------ | -------------------------- | ---------------------------------------- |
-| `id_usuario`      | INTEGER      | PRIMARY KEY, AUTOINCREMENT | Identificador único del usuario.         |
-| `nombre_completo` | TEXT         | NOT NULL                   | Nombre completo del usuario.             |
-| `profesion`       | TEXT         | NOT NULL                   | Profesión del usuario.                   |
-| `github_url`      | TEXT         | NOT NULL                   | URL de GitHub del usuario.               |
-| `foto_perfil`     | TEXT         | NOT NULL                   | Ruta de la imagen de perfil del usuario. |
-| `introduccion`    | TEXT         | NOT NULL                   | Introducción breve sobre el usuario.     |
-| `descripcion`     | TEXT         | NOT NULL                   | Descripción detallada sobre el usuario.  |
+| Columna              | Tipo de dato | Restricciones              | Comentarios                              |
+| -------------------- | ------------ | -------------------------- | ---------------------------------------- |
+| `id_usuario`         | INTEGER      | PRIMARY KEY, AUTOINCREMENT | Identificador único del usuario.         |
+| `nombre_completo`    | TEXT         | NOT NULL                   | Nombre completo del usuario.             |
+| `profesion`          | TEXT         | NOT NULL                   | Profesión del usuario.                   |
+| `github_url`         | TEXT         | NOT NULL                   | URL de GitHub del usuario.               |
+| `foto_perfil`        | TEXT         | NOT NULL                   | Ruta de la imagen de perfil del usuario. |
+| `mensaje_bienvenida` | TEXT         | NOT NULL                   | Mensaje de bienvenida en el inicio.      |
+| `introduccion`       | TEXT         | NOT NULL                   | Introducción breve sobre el usuario.     |
+| `descripcion`        | TEXT         | NOT NULL                   | Descripción detallada sobre el usuario.  |
 
 **Cardinalidad**: Un usuario puede tener solo un conjunto de datos, por lo que la relación con las tablas `proyectos` y `habilidades` es **1:1**.
 
