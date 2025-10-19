@@ -1,6 +1,8 @@
 -- Crear la tabla "usuario"
 CREATE TABLE IF NOT EXISTS usuario (
     id_usuario INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    clave TEXT NOT NULL,
     nombre_completo TEXT NOT NULL,
     profesion TEXT NOT NULL,
     github_url TEXT NOT NULL,
@@ -13,7 +15,7 @@ CREATE TABLE IF NOT EXISTS usuario (
 -- Crear la tabla "proyectos"
 CREATE TABLE IF NOT EXISTS proyectos (
     id_proyecto INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_usuario INTEGER,
+    id_usuario INTEGER NOT NULL,
     nombre TEXT NOT NULL,
     descripcion TEXT NOT NULL,
     url_repositorio TEXT NOT NULL,
@@ -24,7 +26,7 @@ CREATE TABLE IF NOT EXISTS proyectos (
 -- Crear la tabla "habilidades"
 CREATE TABLE IF NOT EXISTS habilidades (
     id_habilidad INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_usuario INTEGER,
+    id_usuario INTEGER NOT NULL,
     nombre TEXT NOT NULL,
     nivel TEXT NOT NULL,
     descripcion TEXT NOT NULL,

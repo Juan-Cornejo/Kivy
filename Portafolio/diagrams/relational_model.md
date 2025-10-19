@@ -9,6 +9,8 @@ Este archivo describe el modelo relacional para la base de datos del proyecto. I
 | Columna              | Tipo de dato | Restricciones              | Comentarios                              |
 | -------------------- | ------------ | -------------------------- | ---------------------------------------- |
 | `id_usuario`         | INTEGER      | PRIMARY KEY, AUTOINCREMENT | Identificador único del usuario.         |
+| `email`              | TEXT         | NOT NULL, UNIQUE           | Correo electrónico del usuario (login).  |
+| `clave`              | TEXT         | NOT NULL                   | Hash de la contraseña del usuario.       |
 | `nombre_completo`    | TEXT         | NOT NULL                   | Nombre completo del usuario.             |
 | `profesion`          | TEXT         | NOT NULL                   | Profesión del usuario.                   |
 | `github_url`         | TEXT         | NOT NULL                   | URL de GitHub del usuario.               |
@@ -26,7 +28,7 @@ Este archivo describe el modelo relacional para la base de datos del proyecto. I
 | Columna           | Tipo de dato | Restricciones              | Comentarios                                       |
 | ----------------- | ------------ | -------------------------- | ------------------------------------------------- |
 | `id_proyecto`     | INTEGER      | PRIMARY KEY, AUTOINCREMENT | Identificador único del proyecto.                 |
-| `id_usuario`      | INTEGER      | FOREIGN KEY                | Referencia al `id_usuario` de la tabla `usuario`. |
+| `id_usuario`      | INTEGER      | NOT NULL, FOREIGN KEY      | Referencia al `id_usuario` de la tabla `usuario`. |
 | `nombre`          | TEXT         | NOT NULL                   | Nombre del proyecto.                              |
 | `descripcion`     | TEXT         | NOT NULL                   | Descripción del proyecto.                         |
 | `url_repositorio` | TEXT         | NOT NULL                   | URL del repositorio del proyecto.                 |
@@ -41,7 +43,7 @@ Este archivo describe el modelo relacional para la base de datos del proyecto. I
 | Columna        | Tipo de dato | Restricciones              | Comentarios                                         |
 | -------------- | ------------ | -------------------------- | --------------------------------------------------- |
 | `id_habilidad` | INTEGER      | PRIMARY KEY, AUTOINCREMENT | Identificador único de la habilidad.                |
-| `id_usuario`   | INTEGER      | FOREIGN KEY                | Referencia al `id_usuario` de la tabla `usuario`.   |
+| `id_usuario`   | INTEGER      | NOT NULL, FOREIGN KEY      | Referencia al `id_usuario` de la tabla `usuario`.   |
 | `nombre`       | TEXT         | NOT NULL                   | Nombre de la habilidad (por ejemplo, "JavaScript"). |
 | `nivel`        | TEXT         | NOT NULL                   | Nivel de la habilidad (por ejemplo, "Avanzado").    |
 | `descripcion`  | TEXT         | NOT NULL                   | Descripción detallada sobre la habilidad.           |

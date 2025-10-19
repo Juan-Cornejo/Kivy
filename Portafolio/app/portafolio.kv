@@ -17,6 +17,9 @@ FloatLayout:
         ScreenManager:
             id: screen_manager
 
+            LoginScreen:
+                name: "login"
+
             FondoWidget:
                 name: "home"
 
@@ -66,7 +69,84 @@ FloatLayout:
                         on_release:
                             app.root.ids.nav_drawer.set_state("close")
                             app.root.ids.screen_manager.current = "habilidades"
+                    
+                    NoRippleListItem:
+                        text: "Cerrar sesión"
+                        icon: "logout"
+                        on_release:
+                            app.root.ids.nav_drawer.set_state("close")
+                            app.root.ids.screen_manager.current = "login"
 
+<LoginScreen>:
+    name: "login"
+    MDFloatLayout:
+        md_bg_color: 1,1,1,1
+
+        MDCard:
+            size_hint: 0.9, 0.5
+            pos_hint: {"center_x": 0.5, "center_y": 0.4}
+            orientation: "vertical"
+            padding: [dp(20), dp(10), dp(20), dp(20)]
+            spacing: dp(15)
+            radius: [20]
+
+            # Label con fondo gris y bordes redondeados, font_size H5 (~24sp)
+            Label:
+                id: lbl_inicio_sesion
+                text: "Iniciar Sesión"
+                color: (0, 0, 0, 1)
+                size_hint: None, None
+                size: dp(210), dp(40)
+                pos_hint: {"center_x": 0.5, "top": 0.95}
+                font_size: "24sp"
+                bold: True
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+                canvas.before:
+                    Color:
+                        rgba: (225/255, 225/255, 225/255, 1)
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [10]
+            
+            Widget:  # Espaciador flexible
+                size_hint_y: None
+                height: dp(70)
+
+            MDTextField:
+                id: email_input
+                hint_text: "Correo electrónico"
+                icon_left: "email-outline"
+                text_color_focus: 0, 0, 0, 1
+                line_color_focus: 0, 0, 0, 1
+                icon_left_color_focus: 0, 0, 0, 1
+                hint_text_color_focus: 0, 0, 0, 1
+
+            MDTextField:
+                id: clave_input
+                hint_text: "Contraseña"
+                password: True
+                icon_left: "lock-outline"
+                text_color_focus: 0, 0, 0, 1
+                line_color_focus: 0, 0, 0, 1
+                icon_left_color_focus: 0, 0, 0, 1
+                hint_text_color_focus: 0, 0, 0, 1
+
+            Widget:  # Espaciador flexible
+                size_hint_y: None
+                height: dp(50)
+
+            SilentRaisedButton:
+                text: "Ingresar"
+                on_release: root.login()
+                size_hint: None, None
+                size: dp(350), dp(70)
+                pos_hint: {"center_x": 0.5}  # solo centrado horizontal
+                font_size: "18sp"
+
+<FondoWidget>:
     FloatLayout:
         SilentIconButton:
             id: hamburger_button
@@ -77,10 +157,15 @@ FloatLayout:
             radius: [dp(12), dp(12), dp(12), dp(12)]
             on_release: app.toggle_nav_drawer()
 
-<FondoWidget>:
-    # propiedades enlazadas (vienen de FondoWidget en Python)
-    # no necesitas declarar aquí, solo las usas como root.prop
-    FloatLayout:
+        # --- ⚙️ BOTÓN DE TUERCA ---
+        SilentIconButton:
+            icon: "cog"
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1
+            pos_hint: {"right": 0.98, "top": 0.98}
+            on_release: root.toggle_edit_mode()
+
+        # --- FOTO DE PERFIL ---
         Image:
             id: foto_perfil
             source: root.foto_source
@@ -107,17 +192,33 @@ FloatLayout:
                     pos: self.pos
                 StencilPop
 
+        # ✏️ Botón de edición de foto
+        SilentIconButton:
+            id: edit_foto
+            icon: "pencil"
+            pos_hint: {"center_x": 0.78, "top": 0.88}
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1
+            opacity: 0
+            disabled: True
+            on_release: 
+                print("Botón de lápiz presionado")
+                root.open_filechooser()
+
+        # --- LABEL NOMBRE ---
         Label:
+            id: lbl_nombre
             text: root.nombre_text or "Nombre Apellido"
             color: (0, 0, 0, 1)
             size_hint: None, None
-            size: dp(210), dp(30)
-            pos_hint: {"center_x": 0.5, "top": 0.68}
+            width: dp(210)
+            height: self.texture_size[1] + dp(10)
+            pos_hint: {"center_x": 0.5, "top": 0.70}
             font_size: "18sp"
             bold: True
             halign: "center"
             valign: "middle"
-            text_size: self.size
+            text_size: self.width, None
             canvas.before:
                 Color:
                     rgba: (225/255, 225/255, 225/255, 1)
@@ -126,16 +227,49 @@ FloatLayout:
                     size: self.size
                     radius: [10]
 
+        # ✏️ Botón de edición de nombre
+        SilentIconButton:
+            id: edit_nombre
+            icon: "pencil"
+            pos_hint: {"center_x": 0.84, "top": 0.70}
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1
+            opacity: 0
+            disabled: True
+            on_release: root.show_name_edit_field()
+        
+        # --- Campo de texto para editar el nombre ---
+        MDTextField:
+            id: edit_name_field
+            text: root.nombre_text
+            size_hint: None, None
+            width: dp(210)
+            halign: "center"
+            valign: "middle"
+            pos_hint: {"center_x": 0.5, "top": 0.73}
+            font_size: "18sp"
+            opacity: 0
+            mode: "fill"
+            line_color: 0, 0, 0, 0 
+            line_color_focus: 0, 0, 0, 1
+            text_color_focus: 0, 0, 0, 1
+            hint_text_color_focus: 0, 0, 0, 1
+            text_color: 0, 0, 0, 1
+            on_text_validate: root.update_name_from_input()
+
+        # --- LABEL PROFESIÓN ---
         Label:
+            id: lbl_profesion
             text: root.profesion_text or "Desarrollador | Programador"
             color: (0, 0, 0, 1)
             size_hint: None, None
-            size: dp(210), dp(30)
-            pos_hint: {"center_x": 0.5, "top": 0.60}
-            font_size: "14sp"
+            width: dp(210)
+            height: self.texture_size[1] + dp(10)
+            pos_hint: {"center_x": 0.5, "top": 0.61}
+            font_size: "16sp"
             halign: "center"
             valign: "middle"
-            text_size: self.size
+            text_size: self.width, None
             canvas.before:
                 Color:
                     rgba: (225/255, 225/255, 225/255, 1)
@@ -144,7 +278,39 @@ FloatLayout:
                     size: self.size
                     radius: [10]
 
+        # ✏️ Botón de edición de profesión
+        SilentIconButton:
+            id: edit_profesion
+            icon: "pencil"
+            pos_hint: {"center_x": 0.84, "top": 0.61}
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1
+            opacity: 0
+            disabled: True
+            on_release: root.show_profession_edit_field()
+
+        # --- Campo de texto para editar la profesión ---
+        MDTextField:
+            id: edit_profession_field
+            text: root.profesion_text
+            size_hint: None, None
+            width: dp(210)
+            halign: "center"
+            valign: "middle"
+            pos_hint: {"center_x": 0.5, "top": 0.64}
+            font_size: "16sp"
+            opacity: 0  # Se mantiene invisible inicialmente
+            mode: "fill"
+            line_color: 0, 0, 0, 0 
+            line_color_focus: 0, 0, 0, 1
+            text_color_focus: 0, 0, 0, 1
+            hint_text_color_focus: 0, 0, 0, 1
+            text_color: 0, 0, 0, 1
+            on_text_validate: root.update_profession_from_input()
+
+        # --- BOTÓN GITHUB ---
         Button:
+            id: btn_github
             background_normal: ""
             background_color: (0, 0, 0, 0)
             size_hint: None, None
@@ -169,13 +335,103 @@ FloatLayout:
                     pos: self.pos
                 StencilPop
 
+        # ✏️ Botón de edición de github
+        SilentIconButton:
+            id: edit_github
+            icon: "pencil"
+            pos_hint: {"center_x": 0.70, "top": 0.42}
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1
+            opacity: 0
+            disabled: True
+            on_release: root.show_github_edit_field()
+        
+        # --- Campo de texto para editar url github ---
+        MDTextField:
+            id: edit_github_field
+            text: root.github_url
+            size_hint: None, None
+            size: dp(210), dp(30)
+            pos_hint: {"center_x": 0.5, "top": 0.36}
+            font_size: "18sp"
+            opacity: 0  # Se mantiene invisible inicialmente
+            line_color_focus: 0, 0, 0, 1
+            text_color_focus: 0, 0, 0, 1
+            hint_text_color_focus: 0, 0, 0, 1
+            on_text_validate: root.update_github_from_input()
+
+        # --- LABEL INTRO ---
         Label:
+            id: lbl_intro
             text: root.intro_text or "Bienvenido a mi portafolio"
             color: (0, 0, 0, 1)
             font_size: "20sp"
             size_hint: None, None
-            size: dp(250), dp(30)
+            width: dp(250)
+            height: self.texture_size[1] + dp(10)
             pos_hint: {"center_x": 0.5, "top": 0.20}
+            halign: "center"
+            valign: "middle"
+            text_size: self.width, None
+            canvas.before:
+                Color:
+                    rgba: (225/255, 225/255, 225/255, 1)
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [10]
+
+        # ✏️ Botón de edición de mensaje de bienvenida
+        SilentIconButton:
+            id: edit_intro
+            icon: "pencil"
+            pos_hint: {"center_x": 0.90, "top": 0.20}
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1
+            opacity: 0
+            disabled: True
+            on_release: root.show_intro_edit_field()
+
+        # --- Campo de texto para editar el mensaje de bienvenida ---
+        MDTextField:
+            id: edit_intro_field
+            text: root.intro_text
+            size_hint: None, None
+            width: dp(250)
+            halign: "center"
+            valign: "middle"
+            pos_hint: {"center_x": 0.5, "top": 0.23}
+            font_size: "20sp"
+            opacity: 0  # Se mantiene invisible inicialmente
+            mode: "fill"
+            line_color: 0, 0, 0, 0
+            line_color_focus: 0, 0, 0, 1
+            text_color_focus: 0, 0, 0, 1
+            hint_text_color_focus: 0, 0, 0, 1
+            text_color: 0, 0, 0, 1
+            on_text_validate: root.update_intro_from_input()
+
+<SobreMiScreen>:
+    FloatLayout:   # 🧱 Cambiado de BoxLayout → FloatLayout
+        SilentIconButton:
+            id: hamburger_button
+            icon: "menu"
+            user_font_size: "32sp"
+            pos_hint: {"top": 0.99, "x": 0.02}
+            md_bg_color: (245/255, 245/255, 245/255, 1)  # Gris claro
+            radius: [dp(12), dp(12), dp(12), dp(12)]
+            on_release: app.toggle_nav_drawer()
+        # ─────────────────────────────
+        # TÍTULO "Sobre mí"
+        # ─────────────────────────────
+        Label:
+            text: "Sobre mi"
+            color: (0, 0, 0, 1)
+            size_hint: None, None
+            size: dp(210), dp(30)
+            pos_hint: {"center_x": 0.5, "top": 0.97}
+            font_size: "18sp"
+            bold: True
             halign: "center"
             valign: "middle"
             text_size: self.size
@@ -187,48 +443,44 @@ FloatLayout:
                     size: self.size
                     radius: [10]
 
+        # ─────────────────────────────
+        # 🆕 TUERCA (MISMA POSICIÓN QUE EN HOME)
+        # ─────────────────────────────
+        SilentIconButton:
+            id: settings_button_sobremi
+            icon: "cog"
+            pos_hint: {"right": 0.98, "top": 0.98}
+            on_release: root.toggle_edit_mode()
 
-<SobreMiScreen>:
-    BoxLayout:
-        orientation: "vertical"
-        spacing: dp(10)
-        padding: 0, dp(10), 0, dp(10)
+        # ─────────────────────────────
+        # 🆕 LÁPIZ (FUERA DEL SCROLLVIEW)
+        # ─────────────────────────────
+        SilentIconButton:
+            id: edit_texto
+            icon: "pencil"
+            opacity: 0
+            disabled: True
+            size_hint: None, None
+            size: dp(40), dp(40)
+            pos_hint: {"center_x": 0.5, "top": 0.90}  # justo debajo del título
+            on_release: root.editar_texto_sobremi()
 
-        AnchorLayout:
-            size_hint_y: None
-            height: dp(70)
-            anchor_x: "center"
-            anchor_y: "top"
-            padding: dp(10), 0, dp(10), 0
-
-            Label:
-                text: "Sobre mi"
-                color: (0, 0, 0, 1)
-                size_hint: None, None
-                size: dp(210), dp(30)
-                font_size: "18sp"
-                bold: True
-                halign: "center"
-                valign: "middle"
-                text_size: self.size
-                canvas.before:
-                    Color:
-                        rgba: (225/255, 225/255, 225/255, 1)
-                    RoundedRectangle:
-                        pos: self.pos
-                        size: self.size
-                        radius: [10]
-
+        # ─────────────────────────────
+        # CONTENIDO PRINCIPAL
+        # ─────────────────────────────
         ScrollView:
             do_scroll_x: False
             bar_width: dp(4)
-            size_hint_y: 1
+            size_hint: 1, None
+            height: self.parent.height * 0.8  # ocupa parte inferior
+            pos_hint: {"center_x": 0.5, "y": 0}
+            scroll_type: ['bars', 'content']
 
             MDBoxLayout:
                 orientation: "vertical"
                 size_hint_y: None
                 height: self.minimum_height
-                padding: dp(16), 0, dp(16), dp(20)
+                padding: dp(16), dp(10), dp(16), dp(20)
                 spacing: dp(20)
 
                 MDCard:
@@ -264,90 +516,113 @@ FloatLayout:
                             height: self.texture_size[1]
 
 <ProyectosScreen>:
-    BoxLayout:
-        orientation: "vertical"
-        spacing: dp(10)
-        padding: 0, dp(10), 0, dp(10)
+    FloatLayout:  # Cambiamos BoxLayout → FloatLayout para poder posicionar el botón
+        # --- BOTÓN HAMBURGER ---
+        SilentIconButton:
+            id: hamburger_button
+            icon: "menu"
+            user_font_size: "32sp"
+            pos_hint: {"top": 0.99, "x": 0.02}
+            md_bg_color: (245/255, 245/255, 245/255, 1)
+            radius: [dp(12), dp(12), dp(12), dp(12)]
+            on_release: app.toggle_nav_drawer()
 
-        AnchorLayout:
-            size_hint_y: None
-            height: dp(70)
-            anchor_x: "center"
-            anchor_y: "top"
-            padding: dp(10), 0, dp(10), 0
+        BoxLayout:
+            orientation: "vertical"
+            spacing: dp(10)
+            padding: 0, dp(10), 0, dp(10)
 
-            Label:
-                text: "Mis Proyectos"
-                color: (0, 0, 0, 1)
-                size_hint: None, None
-                size: dp(210), dp(30)
-                font_size: "18sp"
-                bold: True
-                halign: "center"
-                valign: "middle"
-                text_size: self.size
-                canvas.before:
-                    Color:
-                        rgba: (225/255, 225/255, 225/255, 1)
-                    RoundedRectangle:
-                        pos: self.pos
-                        size: self.size
-                        radius: [10]
-
-        ScrollView:
-            do_scroll_x: False
-            bar_width: dp(4)
-            size_hint_y: 1
-
-            MDGridLayout:
-                id: proyectos_grid
-                cols: 1
-                spacing: dp(20)
-                padding: dp(10), 0, dp(10), dp(20)
+            AnchorLayout:
                 size_hint_y: None
-                size_hint_x: 1
-                height: self.minimum_height
+                height: dp(70)
+                anchor_x: "center"
+                anchor_y: "top"
+                padding: dp(10), 0, dp(10), 0
+
+                Label:
+                    text: "Mis Proyectos"
+                    color: (0, 0, 0, 1)
+                    size_hint: None, None
+                    size: dp(210), dp(30)
+                    font_size: "18sp"
+                    bold: True
+                    halign: "center"
+                    valign: "middle"
+                    text_size: self.size
+                    canvas.before:
+                        Color:
+                            rgba: (225/255, 225/255, 225/255, 1)
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [10]
+
+            ScrollView:
+                do_scroll_x: False
+                bar_width: dp(4)
+                size_hint_y: 1
+
+                MDGridLayout:
+                    id: proyectos_grid
+                    cols: 1
+                    spacing: dp(20)
+                    padding: dp(10), 0, dp(10), dp(20)
+                    size_hint_y: None
+                    size_hint_x: 1
+                    height: self.minimum_height
+
 <HabilidadesScreen>:
-    BoxLayout:
-        orientation: "vertical"
-        spacing: dp(10)
-        padding: 0, dp(10), 0, dp(10)
+    FloatLayout:  # Cambiamos BoxLayout → FloatLayout para poder posicionar el botón
+        # --- BOTÓN HAMBURGER ---
+        SilentIconButton:
+            id: hamburger_button
+            icon: "menu"
+            user_font_size: "32sp"
+            pos_hint: {"top": 0.99, "x": 0.02}
+            md_bg_color: (245/255, 245/255, 245/255, 1)
+            radius: [dp(12), dp(12), dp(12), dp(12)]
+            on_release: app.toggle_nav_drawer()
 
-        AnchorLayout:
-            size_hint_y: None
-            height: dp(70)
-            anchor_x: "center"
-            anchor_y: "top"
-            padding: dp(10), 0, dp(10), 0
+        BoxLayout:
+            orientation: "vertical"
+            spacing: dp(10)
+            padding: 0, dp(10), 0, dp(10)
 
-            Label:
-                text: "Habilidades"
-                color: (0, 0, 0, 1)
-                size_hint: None, None
-                size: dp(210), dp(30)
-                font_size: "18sp"
-                bold: True
-                halign: "center"
-                valign: "middle"
-                text_size: self.size
-                canvas.before:
-                    Color:
-                        rgba: (225/255, 225/255, 225/255, 1)
-                    RoundedRectangle:
-                        pos: self.pos
-                        size: self.size
-                        radius: [10]
-
-        ScrollView:
-            do_scroll_x: False
-            bar_width: dp(4)
-            size_hint_y: 1
-
-            MDGridLayout:
-                id: habilidades_grid
-                cols: 1
-                spacing: dp(20)
-                padding: dp(10), 0, dp(10), dp(20)
+            AnchorLayout:
                 size_hint_y: None
-                size_hint_x: 1
-                height: self.minimum_height
+                height: dp(70)
+                anchor_x: "center"
+                anchor_y: "top"
+                padding: dp(10), 0, dp(10), 0
+
+                Label:
+                    text: "Habilidades"
+                    color: (0, 0, 0, 1)
+                    size_hint: None, None
+                    size: dp(210), dp(30)
+                    font_size: "18sp"
+                    bold: True
+                    halign: "center"
+                    valign: "middle"
+                    text_size: self.size
+                    canvas.before:
+                        Color:
+                            rgba: (225/255, 225/255, 225/255, 1)
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [10]
+
+            ScrollView:
+                do_scroll_x: False
+                bar_width: dp(4)
+                size_hint_y: 1
+
+                MDGridLayout:
+                    id: habilidades_grid
+                    cols: 1
+                    spacing: dp(20)
+                    padding: dp(10), 0, dp(10), dp(20)
+                    size_hint_y: None
+                    size_hint_x: 1
+                    height: self.minimum_height
