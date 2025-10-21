@@ -33,9 +33,9 @@ from kivy.uix.filechooser import FileChooserIconView
 from kivy.uix.button import Button
 from kivy.uix.behaviors import ButtonBehavior
 from kivymd.uix.label import MDIcon
+from app import gestor  # gestor.py maneja SQLite (conexión y CRUD)
 
-# --- YA ESTABA, PERO ES IMPORTANTE ---
-import gestor  # gestor.py maneja SQLite (conexión y CRUD)
+# "python -m app.main" en consola para ejecutar proyecto
 
 # Desktop testing window size
 if platform in ("win", "linux", "macosx"):
