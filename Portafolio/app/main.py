@@ -15,14 +15,13 @@ from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.list import OneLineIconListItem, IconLeftWidget
 from kivy.utils import get_color_from_hex, platform
-from kivy.metrics import dp
+from kivy.metrics import dp, sp
 from kivy.clock import Clock
 from kivy.animation import Animation
 from kivy.uix.widget import Widget
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.properties import BooleanProperty
+from kivy.properties import BooleanProperty, ObjectProperty
 from kivy.app import App
-from kivy.metrics import dp
 from kivy.lang import Builder
 from kivymd.uix.snackbar import Snackbar
 from kivymd.uix.dialog import MDDialog
@@ -33,6 +32,8 @@ from kivy.uix.filechooser import FileChooserIconView
 from kivy.uix.button import Button
 from kivy.uix.behaviors import ButtonBehavior
 from kivymd.uix.label import MDIcon
+from kivy.graphics import Color, Ellipse
+from kivymd.uix.button import MDFloatingActionButton
 from app import gestor  # gestor.py maneja SQLite (conexión y CRUD)
 
 # "python -m app.main" en consola para ejecutar proyecto
@@ -40,6 +41,22 @@ from app import gestor  # gestor.py maneja SQLite (conexión y CRUD)
 # Desktop testing window size
 if platform in ("win", "linux", "macosx"):
     Window.size = (360, 640)
+
+class FlatCircularFAB(MDFloatingActionButton):
+    """Botón circular plano, sin elevación ni ripple."""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.md_bg_color = (225/255, 225/255, 225/255, 1)  # gris claro
+        self.icon_color = (0, 0, 0, 1)
+        self.size_hint = (None, None)
+        self.size = (dp(70), dp(70))
+
+        # Eliminar cualquier animación de elevación
+        self._anim_raised = False
+        self.elevation = 0  # sin sombra
+
+        # Desactivar el efecto ripple / cambio de color al presionar
+        self._no_ripple_effect = True
 
 class NoRippleListItem(OneLineIconListItem):
     icon = StringProperty()
@@ -62,9 +79,7 @@ class NoRippleListItem(OneLineIconListItem):
         return super().on_touch_down(touch)
 
 class SilentIconButton(ButtonBehavior, MDIcon):
-    """
-    Icono que actúa como botón, sin ripple, sin fondo ni círculo gris.
-    """
+    """ Icono que actúa como botón, sin ripple, sin fondo ni círculo gris. """    
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.color = (0, 0, 0, 1)  # color del icono
@@ -96,18 +111,6 @@ class SilentFlatButton(MDFlatButton):
             self.dispatch("on_release")
             return True
         return super().on_touch_down(touch)
-
-class CircularAddButton(SilentIconButton):
-    """Botón circular gris claro, sin ripple, para 'Agregar proyecto'."""
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.icon = "plus"
-        self.md_bg_color = (225/255, 225/255, 225/255, 1)
-        self.text_color = (0, 0, 0, 1)
-        self.size_hint = (None, None)
-        self.size = (dp(64), dp(64))
-        self.pos_hint = {"center_x": 0.5}
-        self.elevation = 3  # leve sombra para resaltar
 
 class SilentRaisedButton(MDRaisedButton):
     """Botón MDRaisedButton gris claro sin efecto ripple al presionar."""
@@ -166,6 +169,11 @@ class LoginScreen(Screen):
             self.ids.email_input.text = ""
             self.ids.clave_input.text = ""
             self.manager.current = "home"
+            try:
+                home_screen = self.manager.get_screen("home")
+                home_screen.mostrar_mensaje_inicio_sesion()
+            except Exception as e:
+                print("No se pudo mostrar el mensaje de inicio de sesión:", e)
         else:
             self.show_error_dialog("Correo o contraseña incorrectos.")
 
@@ -189,6 +197,41 @@ class LoginScreen(Screen):
     def _dismiss_dialog(self):
         if self.dialog:
             self.dialog.dismiss()
+            
+    def mostrar_mensaje_cierre_sesion(self, mensaje="Cierre de sesión exitoso, ¡Hasta luego!"):
+        """Muestra un banner de cierre de sesión idéntico al de inicio de sesión."""
+        try:
+            msg_card = self.ids.logout_message
+            msg_label = self.ids.logout_message_label
+        except Exception as e:
+            print("IDs del mensaje de logout no encontrados:", e)
+            return
+
+        # Actualizar texto
+        msg_label.text = mensaje
+
+        # Cancelar animaciones previas
+        Animation.cancel_all(msg_card)
+
+        # Hacer visible y deslizar hacia abajo
+        msg_card.opacity = 1
+        anim_entrada = Animation(pos_hint={"center_x": 0.5, "top": 0.95}, d=0.38, t="out_back")
+        anim_entrada.start(msg_card)
+
+        # Programar ocultado después de 5 segundos
+        Clock.schedule_once(lambda dt: self.ocultar_mensaje_cierre_sesion(), 5.0)
+
+    def ocultar_mensaje_cierre_sesion(self):
+        """Oculta el banner de cierre de sesión con animación idéntica al inicio de sesión."""
+        try:
+            msg_card = self.ids.logout_message
+        except Exception as e:
+            print("IDs del mensaje de logout no encontrados (ocultar):", e)
+            return
+
+        Animation.cancel_all(msg_card)
+        anim_salida = Animation(pos_hint={"center_x": 0.5, "top": 1.12}, opacity=0, d=0.32, t="in_back")
+        anim_salida.start(msg_card)
 
 class FondoWidget(Screen):
     # props enlazadas al .kv
@@ -204,6 +247,81 @@ class FondoWidget(Screen):
         super().__init__(**kwargs)
         print("✅ FondoWidget inicializado:", self, "desde", __file__)
         
+    def mostrar_mensaje_campo_actualizado(self, mensaje="Campo actualizado."):
+        """Muestra un banner superior idéntico al de cierre de sesión."""
+        try:
+            msg_card = self.ids.campo_message
+            msg_label = self.ids.campo_message_label
+        except Exception as e:
+            print("IDs del mensaje de campo no encontrados:", e)
+            return
+
+        # Actualizar texto
+        msg_label.text = mensaje
+
+        # Cancelar animaciones previas
+        Animation.cancel_all(msg_card)
+
+        # Hacer visible y deslizar hacia abajo
+        msg_card.opacity = 1
+        anim_entrada = Animation(pos_hint={"center_x": 0.5, "top": 0.95}, d=0.38, t="out_back")
+        anim_entrada.start(msg_card)
+
+        # Programar ocultado después de 5 segundos
+        Clock.schedule_once(lambda dt: self.ocultar_mensaje_campo_actualizado(), 3.0)
+
+    def ocultar_mensaje_campo_actualizado(self):
+        """Oculta el banner con animación."""
+        try:
+            msg_card = self.ids.campo_message
+        except Exception as e:
+            print("IDs del mensaje de campo no encontrados (ocultar):", e)
+            return
+
+        Animation.cancel_all(msg_card)
+        anim_salida = Animation(pos_hint={"center_x": 0.5, "top": 1.12}, opacity=0, d=0.32, t="in_back")
+        anim_salida.start(msg_card)
+
+    # Llamar a esta función desde el MDTextField al presionar Enter
+    def campo_editado(self):
+        self.mostrar_mensaje_campo_actualizado()
+        
+    def mostrar_mensaje_inicio_sesion(self, mensaje="Inicio de sesión exitoso, ¡Bienvenido!"):
+        """Muestra un banner superior con animación, lo mantiene 5s y luego lo oculta."""
+        try:
+            msg_card = self.ids.login_message
+            msg_label = self.ids.login_message_label
+        except Exception as e:
+            print("IDs del mensaje no encontrados:", e)
+            return
+
+        # Actualizar texto
+        msg_label.text = mensaje
+
+        # Cancelar animaciones previas
+        Animation.cancel_all(msg_card)
+
+        # Hacer visible y deslizar hacia abajo
+        msg_card.opacity = 1
+        # animamos la posición: bajamos a top 0.95 en 0.38s con curva 'out_back'
+        anim_entrada = Animation(pos_hint={"center_x": 0.5, "top": 0.95}, d=0.38, t="out_back")
+        anim_entrada.start(msg_card)
+
+        # Programar ocultado después de 5s
+        Clock.schedule_once(lambda dt: self.ocultar_mensaje_inicio_sesion(), 5.0)
+
+    def ocultar_mensaje_inicio_sesion(self):
+        """Oculta el banner con animación."""
+        try:
+            msg_card = self.ids.login_message
+        except Exception as e:
+            print("IDs del mensaje no encontrados (ocultar):", e)
+            return
+
+        Animation.cancel_all(msg_card)
+        anim_salida = Animation(pos_hint={"center_x": 0.5, "top": 1.12}, opacity=0, d=0.32, t="in_back")
+        anim_salida.start(msg_card)
+        
     def on_kv_post(self, instance):
     # Deshabilita los botones de edición al cargar la pantalla
         for edit_btn in [
@@ -216,53 +334,58 @@ class FondoWidget(Screen):
             edit_btn.disabled = True
 
     def show_name_edit_field(self):
-        """Alterna la visibilidad del campo de texto para editar el nombre."""
         field = self.ids.edit_name_field
         label = self.ids.lbl_nombre
 
-        if field.opacity == 0:  # Si está oculto, mostrar
-            field.opacity = 1
-            field.focus = False
-            label.opacity = 0
-            
-        else:  # Si ya está visible, ocultar
-            field.opacity = 0
-            label.opacity = 1
+        Animation.cancel_all(field, label)
+        if field.opacity == 0:  # Mostrar
+            field.text = self.nombre_text
+            field.disabled = False
+            Animation(opacity=1, d=0.18).start(field)
+            Animation(opacity=0, d=0.18).start(label)
+        else:  # Ocultar
+            Animation(opacity=0, d=0.18).start(field)
+            Animation(opacity=1, d=0.18).start(label)
+            Clock.schedule_once(lambda dt: setattr(field, "disabled", True), 0.18)
 
     def show_profession_edit_field(self):
-        """Alterna la visibilidad del campo de texto para editar la profesión."""
         field = self.ids.edit_profession_field
         label = self.ids.lbl_profesion
 
-        if field.opacity == 0:  # Si está oculto, mostrar
-            field.opacity = 1
-            field.focus = False
-            label.opacity = 0
-        else:  # Si ya está visible, ocultar
-            field.opacity = 0
-            label.opacity = 1
-    
-    def show_github_edit_field(self):
-        """Muestra u oculta el campo de edición de GitHub al presionar el lápiz."""
-        github_field = self.ids.edit_github_field
+        Animation.cancel_all(field, label)
+        if field.opacity == 0:  # Mostrar
+            field.text = self.profesion_text
+            field.disabled = False
+            Animation(opacity=1, d=0.18).start(field)
+            Animation(opacity=0, d=0.18).start(label)
+        else:  # Ocultar
+            Animation(opacity=0, d=0.18).start(field)
+            Animation(opacity=1, d=0.18).start(label)
+            Clock.schedule_once(lambda dt: setattr(field, "disabled", True), 0.18)
 
-        if github_field.opacity == 0:
-            github_field.text = self.github_url  # Cargar la URL actual
-            github_field.opacity = 1
-            github_field.focus = False
-        else:
-            github_field.opacity = 0
-            github_field.focus = False
-            
-    def show_intro_edit_field(self):
-        """Toggle para mostrar u ocultar el campo de edición de intro"""
-        field = self.ids.edit_intro_field
+    def show_github_edit_field(self):
+        field = self.ids.edit_github_field
+        Animation.cancel_all(field)
+
         if field.opacity == 0:
-            field.opacity = 1
-            field.focus = False
+            field.text = self.github_url
+            field.disabled = False
+            Animation(opacity=1, d=0.18).start(field)
         else:
-            field.opacity = 0
-            field.focus = False
+            Animation(opacity=0, d=0.18).start(field)
+            Clock.schedule_once(lambda dt: setattr(field, "disabled", True), 0.18)
+
+    def show_intro_edit_field(self):
+        field = self.ids.edit_intro_field
+        Animation.cancel_all(field)
+
+        if field.opacity == 0:
+            field.text = self.intro_text
+            field.disabled = False
+            Animation(opacity=1, d=0.18).start(field)
+        else:
+            Animation(opacity=0, d=0.18).start(field)
+            Clock.schedule_once(lambda dt: setattr(field, "disabled", True), 0.18)
     
     def update_name_from_input(self):
         """Actualiza el nombre cuando presionamos 'Enter' y lo guarda en la base de datos."""
@@ -396,7 +519,7 @@ class FondoWidget(Screen):
             Animation.cancel_all(edit_btn)
             if self.edit_mode:
                 edit_btn.disabled = False
-                edit_btn.opacity = 1
+                edit_btn.opacity = 0  # Asegura que empiece invisible
                 Animation(opacity=1, d=0.3).start(edit_btn)
             else:
                 edit_btn.disabled = True
@@ -408,6 +531,19 @@ class FondoWidget(Screen):
                 Clock.schedule_once(
                     lambda dt, btn=edit_btn: setattr(btn, "disabled", True), 0.3
                 )
+        if not self.edit_mode:
+            for field_name in [
+                "edit_name_field",
+                "edit_profession_field",
+                "edit_github_field",
+                "edit_intro_field",
+            ]:
+                if field_name in self.ids:
+                    field = self.ids[field_name]
+                    if field.opacity == 1:
+                        Animation.cancel_all(field)
+                        Animation(opacity=0, d=0.2).start(field)
+                        field.focus = False
     # -------------------------------
     # Funcionalidad para cambiar foto de perfil
     # -------------------------------   
@@ -456,9 +592,57 @@ class FondoWidget(Screen):
             self.ids.foto_perfil.source = '../assets/img/perfil.jpg'  # Si no hay imagen, mostramos una por defecto
             
 class SobreMiScreen(MDScreen):
-    edit_mode = False
+    introduccion_text = StringProperty("")
+    descripcion_text = StringProperty("")
+    edit_mode = BooleanProperty(False)
+    campos_visibles = BooleanProperty(False)
+
+    def on_pre_enter(self, *args):
+        """Carga datos desde la BD al entrar (si aún no están)."""
+        try:
+            usuario = gestor.get_usuario()
+            if usuario:
+                self.introduccion_text = usuario.get("introduccion", "") or ""
+                self.descripcion_text = usuario.get("descripcion", "") or ""
+        except Exception as e:
+            print("Error cargando usuario en SobreMiScreen:", e)
+    
+    def mostrar_mensaje_campo_actualizado(self, mensaje="Campo actualizado."):
+        """Muestra un banner superior en SobreMiScreen al editar un campo."""
+        try:
+            msg_card = self.ids.field_update_message
+            msg_label = self.ids.field_update_message_label
+        except Exception as e:
+            print("IDs del mensaje no encontrados:", e)
+            return
+
+        msg_label.text = mensaje
+
+        # Cancelar animaciones previas
+        Animation.cancel_all(msg_card)
+
+        # Mostrar y animar hacia abajo
+        msg_card.opacity = 1
+        anim_entrada = Animation(pos_hint={"center_x": 0.5, "top": 0.95}, d=0.38, t="out_back")
+        anim_entrada.start(msg_card)
+
+        # Ocultar después de 5s
+        Clock.schedule_once(lambda dt: self.ocultar_mensaje_campo_actualizado(), 3.0)
+
+    def ocultar_mensaje_campo_actualizado(self):
+        """Oculta el banner con animación."""
+        try:
+            msg_card = self.ids.field_update_message
+        except Exception as e:
+            print("IDs del mensaje no encontrados (ocultar):", e)
+            return
+
+        Animation.cancel_all(msg_card)
+        anim_salida = Animation(pos_hint={"center_x": 0.5, "top": 1.12}, opacity=0, d=0.32, t="in_back")
+        anim_salida.start(msg_card)
 
     def toggle_edit_mode(self):
+        """Mantiene tu lógica original para mostrar/ocultar el botón lápiz."""
         self.edit_mode = not self.edit_mode
         edit_btn = self.ids.edit_texto
 
@@ -468,16 +652,107 @@ class SobreMiScreen(MDScreen):
             edit_btn.disabled = False
             Animation(opacity=1, d=0.25).start(edit_btn)
         else:
-            # Evita el parpadeo gris
             edit_btn.state = "normal"
             edit_btn.focus = False
             edit_btn.md_bg_color = (0, 0, 0, 0)
             Animation(opacity=0, d=0.25).start(edit_btn)
             Clock.schedule_once(lambda dt: setattr(edit_btn, "disabled", True), 0.25)
+            # Si se sale del modo edición ocultamos campos sin guardar
+            if self.campos_visibles:
+                self.ocultar_campos_edicion(save=False)
 
     def editar_texto_sobremi(self):
-        # Aquí luego agregarás la lógica para abrir un popup o campo editable
-        print("Editar texto 'Sobre mí' clicado")
+        """Toggle: si los campos están ocultos los mostramos; si están visibles, los ocultamos sin guardar."""
+        if not self.campos_visibles:
+            self.mostrar_campos_edicion()
+        else:
+            # Al presionar lápiz otra vez -> ocultar SIN guardar (comportamiento solicitado)
+            self.ocultar_campos_edicion(save=False)
+
+    def mostrar_campos_edicion(self):
+        """Muestra los MDTextField (copia texto actual y pone foco)."""
+        try:
+            intro_field = self.ids.edit_introduccion_field
+            desc_field = self.ids.edit_descripcion_field
+            lbl_intro = self.ids.lbl_introduccion
+            lbl_desc = self.ids.lbl_descripcion
+        except Exception as e:
+            print("IDs faltantes en kv para mostrar_campos_edicion:", e)
+            return
+
+        # Rellenar campos con texto actual
+        intro_field.text = lbl_intro.text or ""
+        desc_field.text = lbl_desc.text or ""
+
+        Animation.cancel_all(intro_field)
+        Animation.cancel_all(desc_field)
+        Animation(opacity=1, d=0.18).start(intro_field)
+        Animation(opacity=1, d=0.18).start(desc_field)
+
+        lbl_intro.opacity = 0
+        lbl_desc.opacity = 0
+
+        self.campos_visibles = True
+
+    def ocultar_campos_edicion(self, save: bool = True):
+        """
+        Oculta los MDTextField. 
+        Si save=True guarda en BD via gestor.upsert_usuario(introduccion=..., descripcion=...).
+        Si save=False restaura labels con los textos previos (no guarda).
+        """
+        try:
+            intro_field = self.ids.edit_introduccion_field
+            desc_field = self.ids.edit_descripcion_field
+            lbl_intro = self.ids.lbl_introduccion
+            lbl_desc = self.ids.lbl_descripcion
+        except Exception as e:
+            print("IDs faltantes en kv para ocultar_campos_edicion:", e)
+            return
+
+        # Si no guardamos, restauramos labels al valor en las propiedades
+        if not save:
+            lbl_intro.text = self.introduccion_text or lbl_intro.text
+            lbl_desc.text = self.descripcion_text or lbl_desc.text
+        else:
+            # Guardar en BD solo si el texto cambió
+            nuevo_intro = intro_field.text.strip()
+            nueva_desc = desc_field.text.strip()
+
+            # Actualizar labels en UI
+            lbl_intro.text = nuevo_intro
+            lbl_desc.text = nueva_desc
+
+            # Persistencia
+            try:
+                gestor.upsert_usuario(introduccion=nuevo_intro, descripcion=nueva_desc)
+                # Actualizar las props locales
+                self.introduccion_text = nuevo_intro
+                self.descripcion_text = nueva_desc
+                print("SobreMi: cambios guardados en BD.")
+            except Exception as e:
+                print("Error guardando SobreMi en BD:", e)
+
+        # Ocultar campos y restaurar labels visibles
+        Animation.cancel_all(intro_field)
+        Animation.cancel_all(desc_field)
+        Animation(opacity=0, d=0.18).start(intro_field)
+        Animation(opacity=0, d=0.18).start(desc_field)
+
+        lbl_intro.opacity = 1
+        lbl_desc.opacity = 1
+
+        intro_field.focus = False
+        desc_field.focus = False
+        self.campos_visibles = False
+
+    def update_introduccion_from_input(self):
+        """Se llama con on_text_validate (Enter) desde el MDTextField de introducción -> guarda."""
+        # Guardar y ocultar (save=True)
+        self.ocultar_campos_edicion(save=True)
+
+    def update_descripcion_from_input(self):
+        """Se llama con on_text_validate (Enter) desde el MDTextField de descripción -> guarda."""
+        self.ocultar_campos_edicion(save=True)
 
 class CardListScreen(Screen):
     grid_id = ""
@@ -699,26 +974,22 @@ class ProyectosScreen(CardListScreen):
             if hasattr(w, "is_add_button") and w.is_add_button:
                 return
 
-        # 🔹 Contenedor centrado y un poco más arriba del fondo
+        # 🔹 Contenedor centrado
         add_container = AnchorLayout(
             anchor_x="center",
             anchor_y="center",
             size_hint_y=None,
-            height=dp(90),  # un poco menos alto para acercarlo al final de las cards
+            height=dp(90),  # ajusta la altura si quieres más espacio
             padding=(0, dp(1), 0, 0),
         )
 
-        # 🔹 Botón circular gris claro
-        add_button = SilentIconButton(
+        # 🔹 Botón circular plano (sin elevación, sin ripple)
+        add_button = FlatCircularFAB(
             icon="plus",
-            size_hint=(None, None),
-            size=(dp(70), dp(70)),
         )
-        add_button.is_add_button = True
-        add_button.md_bg_color = (225/255, 225/255, 225/255, 1)
-        add_button.text_color = (0, 0, 0, 1)
-        add_button.elevation = 3  # leve sombra
         add_button.bind(on_release=self.nuevo_proyecto)
+        add_button.is_add_button = True
+
         add_container.add_widget(add_button)
         add_container.is_add_button = True
 
@@ -845,24 +1116,22 @@ class HabilidadesScreen(CardListScreen):
             if hasattr(w, "is_add_button") and w.is_add_button:
                 return
 
+        # 🔹 Contenedor centrado
         add_container = AnchorLayout(
             anchor_x="center",
             anchor_y="center",
             size_hint_y=None,
-            height=dp(90),
+            height=dp(90),  # ajusta la altura si quieres más espacio
             padding=(0, dp(1), 0, 0),
         )
 
-        add_button = SilentIconButton(
+        # 🔹 Botón circular plano (sin elevación, sin ripple)
+        add_button = FlatCircularFAB(
             icon="plus",
-            size_hint=(None, None),
-            size=(dp(70), dp(70)),
         )
-        add_button.is_add_button = True
-        add_button.md_bg_color = (225/255, 225/255, 225/255, 1)
-        add_button.text_color = (0, 0, 0, 1)
-        add_button.elevation = 3
         add_button.bind(on_release=self.nueva_habilidad)
+        add_button.is_add_button = True
+
         add_container.add_widget(add_button)
         add_container.is_add_button = True
 
