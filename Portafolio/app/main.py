@@ -1,5 +1,10 @@
 from kivy.core.window import Window
+from plyer import filechooser
+from kivy.uix.scrollview import ScrollView
+from kivy.factory import Factory
+from pathlib import Path
 from kivy.lang import Builder
+from os.path import expanduser
 from kivymd.app import MDApp
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
@@ -20,6 +25,7 @@ from kivy.clock import Clock
 from kivy.animation import Animation
 from kivy.uix.widget import Widget
 from kivy.uix.relativelayout import RelativeLayout
+from kivymd.uix.textfield import MDTextField
 from kivy.properties import BooleanProperty, ObjectProperty
 from kivy.app import App
 from kivy.lang import Builder
@@ -42,8 +48,10 @@ from app import gestor  # gestor.py maneja SQLite (conexión y CRUD)
 if platform in ("win", "linux", "macosx"):
     Window.size = (360, 640)
 
+
 class FlatCircularFAB(MDFloatingActionButton):
     """Botón circular plano, sin elevación ni ripple."""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.md_bg_color = (225/255, 225/255, 225/255, 1)  # gris claro
@@ -57,6 +65,7 @@ class FlatCircularFAB(MDFloatingActionButton):
 
         # Desactivar el efecto ripple / cambio de color al presionar
         self._no_ripple_effect = True
+
 
 class NoRippleListItem(OneLineIconListItem):
     icon = StringProperty()
@@ -78,8 +87,10 @@ class NoRippleListItem(OneLineIconListItem):
             return True
         return super().on_touch_down(touch)
 
+
 class SilentIconButton(ButtonBehavior, MDIcon):
-    """ Icono que actúa como botón, sin ripple, sin fondo ni círculo gris. """    
+    """ Icono que actúa como botón, sin ripple, sin fondo ni círculo gris. """
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.color = (0, 0, 0, 1)  # color del icono
@@ -94,6 +105,7 @@ class SilentIconButton(ButtonBehavior, MDIcon):
             return True
         return super().on_touch_down(touch)
 
+
 class SilentFlatButton(MDFlatButton):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -102,6 +114,7 @@ class SilentFlatButton(MDFlatButton):
         self.text_color = (0, 0, 0, 1)  # texto negro para contraste
         self.elevation = 0  # sin sombra
         self.theme_bg_color = "Custom"
+
     def on_touch_down(self, touch):
         # Si el botón está deshabilitado o invisible, ignorar el toque
         if self.disabled or getattr(self, "opacity", 1) == 0:
@@ -112,8 +125,10 @@ class SilentFlatButton(MDFlatButton):
             return True
         return super().on_touch_down(touch)
 
+
 class SilentRaisedButton(MDRaisedButton):
     """Botón MDRaisedButton gris claro sin efecto ripple al presionar."""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # Forzar uso de color custom
@@ -128,7 +143,7 @@ class SilentRaisedButton(MDRaisedButton):
         self.ripple_behavior = False
 
         self.padding = [dp(20), dp(10)]
-        
+
     def on_touch_down(self, touch):
         # Si el botón está deshabilitado o invisible, ignorar el toque
         if self.disabled or getattr(self, "opacity", 1) == 0:
@@ -138,7 +153,8 @@ class SilentRaisedButton(MDRaisedButton):
             self.dispatch("on_release")
             return True
         return super().on_touch_down(touch)
-    
+
+
 class SilentDialogButton(MDFlatButton):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -149,8 +165,11 @@ class SilentDialogButton(MDFlatButton):
         self.elevation = 0
 
 # si usas AnimatedButton en otro lado, mantenla (aquí por completitud)
+
+
 class AnimatedButton(MDFlatButton):
     scale = NumericProperty(1)
+
 
 class LoginScreen(Screen):
     dialog = None  # guardamos la instancia para no crear varias
@@ -163,7 +182,8 @@ class LoginScreen(Screen):
             self.show_error_dialog("Por favor ingrese correo y contraseña.")
             return
 
-        usuario = gestor.verificar_login(email, clave)  # tu función de verificación
+        usuario = gestor.verificar_login(
+            email, clave)  # tu función de verificación
         if usuario:
             MDApp.get_running_app().usuario_actual = usuario
             self.ids.email_input.text = ""
@@ -197,7 +217,7 @@ class LoginScreen(Screen):
     def _dismiss_dialog(self):
         if self.dialog:
             self.dialog.dismiss()
-            
+
     def mostrar_mensaje_cierre_sesion(self, mensaje="Cierre de sesión exitoso, ¡Hasta luego!"):
         """Muestra un banner de cierre de sesión idéntico al de inicio de sesión."""
         try:
@@ -215,11 +235,13 @@ class LoginScreen(Screen):
 
         # Hacer visible y deslizar hacia abajo
         msg_card.opacity = 1
-        anim_entrada = Animation(pos_hint={"center_x": 0.5, "top": 0.95}, d=0.38, t="out_back")
+        anim_entrada = Animation(
+            pos_hint={"center_x": 0.5, "top": 0.95}, d=0.38, t="out_back")
         anim_entrada.start(msg_card)
 
         # Programar ocultado después de 5 segundos
-        Clock.schedule_once(lambda dt: self.ocultar_mensaje_cierre_sesion(), 5.0)
+        Clock.schedule_once(
+            lambda dt: self.ocultar_mensaje_cierre_sesion(), 5.0)
 
     def ocultar_mensaje_cierre_sesion(self):
         """Oculta el banner de cierre de sesión con animación idéntica al inicio de sesión."""
@@ -230,8 +252,10 @@ class LoginScreen(Screen):
             return
 
         Animation.cancel_all(msg_card)
-        anim_salida = Animation(pos_hint={"center_x": 0.5, "top": 1.12}, opacity=0, d=0.32, t="in_back")
+        anim_salida = Animation(
+            pos_hint={"center_x": 0.5, "top": 1.12}, opacity=0, d=0.32, t="in_back")
         anim_salida.start(msg_card)
+
 
 class FondoWidget(Screen):
     # props enlazadas al .kv
@@ -246,7 +270,7 @@ class FondoWidget(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         print("✅ FondoWidget inicializado:", self, "desde", __file__)
-        
+
     def mostrar_mensaje_campo_actualizado(self, mensaje="Campo actualizado."):
         """Muestra un banner superior idéntico al de cierre de sesión."""
         try:
@@ -264,11 +288,13 @@ class FondoWidget(Screen):
 
         # Hacer visible y deslizar hacia abajo
         msg_card.opacity = 1
-        anim_entrada = Animation(pos_hint={"center_x": 0.5, "top": 0.95}, d=0.38, t="out_back")
+        anim_entrada = Animation(
+            pos_hint={"center_x": 0.5, "top": 0.95}, d=0.38, t="out_back")
         anim_entrada.start(msg_card)
 
         # Programar ocultado después de 5 segundos
-        Clock.schedule_once(lambda dt: self.ocultar_mensaje_campo_actualizado(), 3.0)
+        Clock.schedule_once(
+            lambda dt: self.ocultar_mensaje_campo_actualizado(), 3.0)
 
     def ocultar_mensaje_campo_actualizado(self):
         """Oculta el banner con animación."""
@@ -279,13 +305,14 @@ class FondoWidget(Screen):
             return
 
         Animation.cancel_all(msg_card)
-        anim_salida = Animation(pos_hint={"center_x": 0.5, "top": 1.12}, opacity=0, d=0.32, t="in_back")
+        anim_salida = Animation(
+            pos_hint={"center_x": 0.5, "top": 1.12}, opacity=0, d=0.32, t="in_back")
         anim_salida.start(msg_card)
 
     # Llamar a esta función desde el MDTextField al presionar Enter
     def campo_editado(self):
         self.mostrar_mensaje_campo_actualizado()
-        
+
     def mostrar_mensaje_inicio_sesion(self, mensaje="Inicio de sesión exitoso, ¡Bienvenido!"):
         """Muestra un banner superior con animación, lo mantiene 5s y luego lo oculta."""
         try:
@@ -304,11 +331,13 @@ class FondoWidget(Screen):
         # Hacer visible y deslizar hacia abajo
         msg_card.opacity = 1
         # animamos la posición: bajamos a top 0.95 en 0.38s con curva 'out_back'
-        anim_entrada = Animation(pos_hint={"center_x": 0.5, "top": 0.95}, d=0.38, t="out_back")
+        anim_entrada = Animation(
+            pos_hint={"center_x": 0.5, "top": 0.95}, d=0.38, t="out_back")
         anim_entrada.start(msg_card)
 
         # Programar ocultado después de 5s
-        Clock.schedule_once(lambda dt: self.ocultar_mensaje_inicio_sesion(), 5.0)
+        Clock.schedule_once(
+            lambda dt: self.ocultar_mensaje_inicio_sesion(), 5.0)
 
     def ocultar_mensaje_inicio_sesion(self):
         """Oculta el banner con animación."""
@@ -319,11 +348,12 @@ class FondoWidget(Screen):
             return
 
         Animation.cancel_all(msg_card)
-        anim_salida = Animation(pos_hint={"center_x": 0.5, "top": 1.12}, opacity=0, d=0.32, t="in_back")
+        anim_salida = Animation(
+            pos_hint={"center_x": 0.5, "top": 1.12}, opacity=0, d=0.32, t="in_back")
         anim_salida.start(msg_card)
-        
+
     def on_kv_post(self, instance):
-    # Deshabilita los botones de edición al cargar la pantalla
+        # Deshabilita los botones de edición al cargar la pantalla
         for edit_btn in [
             self.ids.edit_foto,
             self.ids.edit_nombre,
@@ -346,7 +376,8 @@ class FondoWidget(Screen):
         else:  # Ocultar
             Animation(opacity=0, d=0.18).start(field)
             Animation(opacity=1, d=0.18).start(label)
-            Clock.schedule_once(lambda dt: setattr(field, "disabled", True), 0.18)
+            Clock.schedule_once(lambda dt: setattr(
+                field, "disabled", True), 0.18)
 
     def show_profession_edit_field(self):
         field = self.ids.edit_profession_field
@@ -361,7 +392,8 @@ class FondoWidget(Screen):
         else:  # Ocultar
             Animation(opacity=0, d=0.18).start(field)
             Animation(opacity=1, d=0.18).start(label)
-            Clock.schedule_once(lambda dt: setattr(field, "disabled", True), 0.18)
+            Clock.schedule_once(lambda dt: setattr(
+                field, "disabled", True), 0.18)
 
     def show_github_edit_field(self):
         field = self.ids.edit_github_field
@@ -373,7 +405,8 @@ class FondoWidget(Screen):
             Animation(opacity=1, d=0.18).start(field)
         else:
             Animation(opacity=0, d=0.18).start(field)
-            Clock.schedule_once(lambda dt: setattr(field, "disabled", True), 0.18)
+            Clock.schedule_once(lambda dt: setattr(
+                field, "disabled", True), 0.18)
 
     def show_intro_edit_field(self):
         field = self.ids.edit_intro_field
@@ -385,8 +418,9 @@ class FondoWidget(Screen):
             Animation(opacity=1, d=0.18).start(field)
         else:
             Animation(opacity=0, d=0.18).start(field)
-            Clock.schedule_once(lambda dt: setattr(field, "disabled", True), 0.18)
-    
+            Clock.schedule_once(lambda dt: setattr(
+                field, "disabled", True), 0.18)
+
     def update_name_from_input(self):
         """Actualiza el nombre cuando presionamos 'Enter' y lo guarda en la base de datos."""
         new_name = self.ids.edit_name_field.text
@@ -396,7 +430,8 @@ class FondoWidget(Screen):
             # Actualizamos el nombre en la UI
             self.nombre_text = new_name
             self.ids.lbl_nombre.text = new_name  # Actualizamos el label con el nuevo nombre
-            self.ids.lbl_nombre.height = self.ids.lbl_nombre.texture_size[1] + dp(10)
+            self.ids.lbl_nombre.height = self.ids.lbl_nombre.texture_size[1] + dp(
+                10)
 
             # Guardamos el nuevo nombre en la base de datos
             self.update_user_name(new_name)
@@ -413,8 +448,10 @@ class FondoWidget(Screen):
         if new_profession:  # Si hay texto
             # Actualizamos la profesión en la UI
             self.profesion_text = new_profession
-            self.ids.lbl_profesion.text = new_profession  # Actualizamos el label con la nueva profesión
-            self.ids.lbl_profesion.height = self.ids.lbl_profesion.texture_size[1] + dp(10)
+            # Actualizamos el label con la nueva profesión
+            self.ids.lbl_profesion.text = new_profession
+            self.ids.lbl_profesion.height = self.ids.lbl_profesion.texture_size[1] + dp(
+                10)
 
             # Guardamos la nueva profesión en la base de datos
             self.update_user_profession(new_profession)
@@ -422,7 +459,7 @@ class FondoWidget(Screen):
             # Ocultamos el campo de texto y mostramos el label nuevamente
             self.ids.edit_profession_field.opacity = 0
             self.ids.lbl_profesion.opacity = 1
-    
+
     def update_github_from_input(self):
         """Actualiza la URL de GitHub al presionar Enter"""
         new_url = self.ids.edit_github_field.text.strip()
@@ -433,18 +470,19 @@ class FondoWidget(Screen):
             gestor.upsert_usuario(github_url=new_url)  # guardamos en DB
         except Exception as e:
             print("Error al actualizar GitHub en la base de datos:", e)
-    
+
         # Ocultar el campo
         self.ids.edit_github_field.opacity = 0
         self.ids.edit_github_field.focus = False
-        
+
     def update_intro_from_input(self):
         """Actualiza el mensaje de bienvenida al presionar Enter"""
         new_intro = self.ids.edit_intro_field.text.strip()
         if new_intro:
             self.intro_text = new_intro
             self.ids.lbl_intro.text = new_intro
-            self.ids.lbl_intro.height = self.ids.lbl_intro.texture_size[1] + dp(10)
+            self.ids.lbl_intro.height = self.ids.lbl_intro.texture_size[1] + dp(
+                10)
         try:
             gestor.upsert_usuario(mensaje_bienvenida=new_intro)
             print("Mensaje de bienvenida actualizado:", new_intro)
@@ -496,10 +534,13 @@ class FondoWidget(Screen):
 
         # 🔧 Ajustado a schema.sql
         self.nombre_text = data.get("nombre_completo") or "Nombre Apellido"
-        self.profesion_text = data.get("profesion") or "Desarrollador | Programador"
-        self.intro_text = data.get("mensaje_bienvenida") or "Bienvenido a mi portafolio"
+        self.profesion_text = data.get(
+            "profesion") or "Desarrollador | Programador"
+        self.intro_text = data.get(
+            "mensaje_bienvenida") or "Bienvenido a mi portafolio"
         self.github_url = data.get("github_url") or ""
-        self.foto_source = data.get("foto_perfil") or "../assets/img/perfil.jpg"
+        self.foto_source = data.get(
+            "foto_perfil") or "../assets/img/perfil.jpg"
 
     def abrir_github(self):
         import webbrowser
@@ -508,7 +549,8 @@ class FondoWidget(Screen):
 
     def toggle_edit_mode(self):
         self.edit_mode = not self.edit_mode
-        print("Modo de edición activado:", self.edit_mode)  # Verifica si el estado cambia
+        # Verifica si el estado cambia
+        print("Modo de edición activado:", self.edit_mode)
         for edit_btn in [
             self.ids.edit_foto,
             self.ids.edit_nombre,
@@ -529,7 +571,8 @@ class FondoWidget(Screen):
                 Animation(opacity=0, d=0.3).start(edit_btn)
                 # desactivar un pelín después de la animación
                 Clock.schedule_once(
-                    lambda dt, btn=edit_btn: setattr(btn, "disabled", True), 0.3
+                    lambda dt, btn=edit_btn: setattr(
+                        btn, "disabled", True), 0.3
                 )
         if not self.edit_mode:
             for field_name in [
@@ -544,53 +587,121 @@ class FondoWidget(Screen):
                         Animation.cancel_all(field)
                         Animation(opacity=0, d=0.2).start(field)
                         field.focus = False
-    # -------------------------------
+        # -------------------------------
     # Funcionalidad para cambiar foto de perfil
-    # -------------------------------   
-    def open_filechooser(self):
-        """Abre el FileChooser para seleccionar una nueva imagen de perfil"""
-        print("Abriendo el FileChooser...")
-        filechooser = FileChooserIconView()
-        filechooser.filters = ['*.png', '*.jpg', '*.jpeg']  # Solo imágenes
-        filechooser.bind(on_selection=lambda instance, selection: self.on_image_selected(instance, selection))
-        
-        # Crear un Popup para mostrar el FileChooser
-        popup = Popup(title="Selecciona una imagen", content=filechooser, size_hint=(0.8, 0.8))
-        popup.open()
+    # -------------------------------
 
-    def on_image_selected(self, filechooser, selection):
-        """Se llama cuando el usuario selecciona una imagen del FileChooser"""
+    def open_filechooser(self):
+        """Abre un popup con FileChooser y botones Cancelar / Seleccionar."""
+        print("🟢 open_filechooser llamado")
+
+        # FileChooser
+        self.filechooser = FileChooserIconView()
+        self.filechooser.filters = ['*.png', '*.jpg', '*.jpeg']
+
+        # Path inicial: carpeta assets/img del proyecto
+        base_dir = Path(__file__).parent.parent   # .../Portafolio/
+        img_dir = base_dir / "assets" / "img"
+        self.filechooser.path = str(img_dir)
+        print("📁 FileChooser path inicial:", self.filechooser.path)
+
+        # Layout del popup: FileChooser arriba, botones abajo
+        from kivy.uix.boxlayout import BoxLayout
+        from kivy.uix.button import Button
+
+        content = BoxLayout(orientation="vertical", spacing=5)
+        content.add_widget(self.filechooser)
+
+        botones = BoxLayout(size_hint_y=None, height=dp(48),
+                            spacing=5, padding=[5, 5, 5, 5])
+
+        btn_cancelar = Button(text="Cancelar")
+        btn_cancelar.bind(on_release=lambda *args: self._cerrar_popup())
+
+        btn_seleccionar = Button(text="Seleccionar")
+        btn_seleccionar.bind(on_release=self.confirm_image_selection)
+
+        botones.add_widget(btn_cancelar)
+        botones.add_widget(btn_seleccionar)
+
+        content.add_widget(botones)
+
+        # Creamos y abrimos el popup
+        self.popup = Popup(
+            title="Selecciona una imagen",
+            content=content,
+            size_hint=(0.9, 0.9)
+        )
+        self.popup.open()
+
+    def _cerrar_popup(self, *args):
+        if hasattr(self, "popup") and self.popup:
+            self.popup.dismiss()
+
+    def confirm_image_selection(self, *args):
+        """Lee la selección actual del FileChooser al pulsar 'Seleccionar'."""
+        if not hasattr(self, "filechooser"):
+            print("⚠️ No hay filechooser activo")
+            self._cerrar_popup()
+            return
+
+        selection = self.filechooser.selection
+        print("🟡 confirm_image_selection, selection:", selection)
+
         if selection:
             image_path = selection[0]
-            print("Imagen seleccionada:", image_path)  # Para debug
+            print("✅ Imagen elegida:", image_path)
             self.update_profile_image(image_path)
-            self.popup.dismiss()
         else:
-            print("❌ No se ha seleccionado ninguna imagen")
-    
+            print("❌ No se seleccionó ningún archivo")
+
+        self._cerrar_popup()
+
     def update_profile_image(self, image_path):
-        """Actualiza la imagen de perfil en la interfaz y en la base de datos"""
-        self.ids.foto_perfil.source = image_path  # Actualiza la imagen en la interfaz
-        
-        # Ahora actualizamos la imagen en la base de datos
+        """Actualiza la imagen de perfil en la interfaz y en la base de datos."""
+        print("🔄 update_profile_image con ruta:", image_path)
+
+        # Actualiza la propiedad que usa el KV
+        self.foto_source = image_path
+        print("🎨 foto_source ahora es:", self.foto_source)
+
+        # Por si acaso, también actualizamos directo el Image
+        if "foto_perfil" in self.ids:
+            self.ids.foto_perfil.source = image_path
+
+        # Guardar en BD
         self.update_user_profile_image(image_path)
-    
+
     def update_user_profile_image(self, new_image_path):
-        """Actualiza la ruta de la imagen de perfil en la base de datos"""
+        """Actualiza la ruta de la imagen de perfil en la base de datos."""
+        print("💾 Guardando nueva imagen en BD:", new_image_path)
         try:
             gestor.upsert_usuario(foto_perfil=new_image_path)
-            print("Ruta de la imagen actualizada en la base de datos")
+            print("✅ Ruta de la imagen actualizada en la base de datos")
         except Exception as e:
-            print("Error al actualizar la imagen en la base de datos:", e)
+            print("⚠️ Error al actualizar la imagen en la base de datos:", e)
 
     def load_profile_image(self):
-        """Carga la imagen de perfil desde la base de datos"""
+        """Carga la imagen de perfil desde la base de datos (si la quieres usar)."""
         data = gestor.get_usuario()
         if data and data.get('foto_perfil'):
-            self.ids.foto_perfil.source = data['foto_perfil']  # Carga la imagen desde la base de datos
+            path = data['foto_perfil']
+            print("📥 Cargando imagen de perfil desde BD:", path)
+            self.foto_source = path
+            if "foto_perfil" in self.ids:
+                self.ids.foto_perfil.source = path
         else:
-            self.ids.foto_perfil.source = '../assets/img/perfil.jpg'  # Si no hay imagen, mostramos una por defecto
-            
+            default = "../assets/img/perfil.jpg"
+            print("📥 Usando imagen de perfil por defecto:", default)
+            self.foto_source = default
+            if "foto_perfil" in self.ids:
+                self.ids.foto_perfil.source = default
+
+    # -------------------------------
+    # Funcionalidad para cambiar foto de perfil
+    # -------------------------------
+
+
 class SobreMiScreen(MDScreen):
     introduccion_text = StringProperty("")
     descripcion_text = StringProperty("")
@@ -606,7 +717,7 @@ class SobreMiScreen(MDScreen):
                 self.descripcion_text = usuario.get("descripcion", "") or ""
         except Exception as e:
             print("Error cargando usuario en SobreMiScreen:", e)
-    
+
     def mostrar_mensaje_campo_actualizado(self, mensaje="Campo actualizado."):
         """Muestra un banner superior en SobreMiScreen al editar un campo."""
         try:
@@ -623,11 +734,13 @@ class SobreMiScreen(MDScreen):
 
         # Mostrar y animar hacia abajo
         msg_card.opacity = 1
-        anim_entrada = Animation(pos_hint={"center_x": 0.5, "top": 0.95}, d=0.38, t="out_back")
+        anim_entrada = Animation(
+            pos_hint={"center_x": 0.5, "top": 0.95}, d=0.38, t="out_back")
         anim_entrada.start(msg_card)
 
         # Ocultar después de 5s
-        Clock.schedule_once(lambda dt: self.ocultar_mensaje_campo_actualizado(), 3.0)
+        Clock.schedule_once(
+            lambda dt: self.ocultar_mensaje_campo_actualizado(), 3.0)
 
     def ocultar_mensaje_campo_actualizado(self):
         """Oculta el banner con animación."""
@@ -638,7 +751,8 @@ class SobreMiScreen(MDScreen):
             return
 
         Animation.cancel_all(msg_card)
-        anim_salida = Animation(pos_hint={"center_x": 0.5, "top": 1.12}, opacity=0, d=0.32, t="in_back")
+        anim_salida = Animation(
+            pos_hint={"center_x": 0.5, "top": 1.12}, opacity=0, d=0.32, t="in_back")
         anim_salida.start(msg_card)
 
     def toggle_edit_mode(self):
@@ -656,7 +770,8 @@ class SobreMiScreen(MDScreen):
             edit_btn.focus = False
             edit_btn.md_bg_color = (0, 0, 0, 0)
             Animation(opacity=0, d=0.25).start(edit_btn)
-            Clock.schedule_once(lambda dt: setattr(edit_btn, "disabled", True), 0.25)
+            Clock.schedule_once(lambda dt: setattr(
+                edit_btn, "disabled", True), 0.25)
             # Si se sale del modo edición ocultamos campos sin guardar
             if self.campos_visibles:
                 self.ocultar_campos_edicion(save=False)
@@ -696,7 +811,7 @@ class SobreMiScreen(MDScreen):
 
     def ocultar_campos_edicion(self, save: bool = True):
         """
-        Oculta los MDTextField. 
+        Oculta los MDTextField.
         Si save=True guarda en BD via gestor.upsert_usuario(introduccion=..., descripcion=...).
         Si save=False restaura labels con los textos previos (no guarda).
         """
@@ -724,7 +839,8 @@ class SobreMiScreen(MDScreen):
 
             # Persistencia
             try:
-                gestor.upsert_usuario(introduccion=nuevo_intro, descripcion=nueva_desc)
+                gestor.upsert_usuario(
+                    introduccion=nuevo_intro, descripcion=nueva_desc)
                 # Actualizar las props locales
                 self.introduccion_text = nuevo_intro
                 self.descripcion_text = nueva_desc
@@ -754,6 +870,7 @@ class SobreMiScreen(MDScreen):
         """Se llama con on_text_validate (Enter) desde el MDTextField de descripción -> guarda."""
         self.ocultar_campos_edicion(save=True)
 
+
 class CardListScreen(Screen):
     grid_id = ""
     card_radius = [15]
@@ -781,10 +898,21 @@ class CardListScreen(Screen):
         grid = self.ids.get(self.grid_id)
         if not grid:
             return
+
         grid.clear_widgets()
         card_height, image_height = self._compute_card_metrics()
+
         for item in self._card_data():
             grid.add_widget(self._build_card(item, card_height, image_height))
+
+        # 👇 AÑADIDO: después de repoblar, vuelve a poner el botón "+"
+        if hasattr(self, "agregar_boton_mas"):
+            try:
+                self.agregar_boton_mas()
+            except Exception as e:
+                print("Error al agregar botón '+':", e)
+        if grid.parent and hasattr(grid.parent, 'scroll_y'):
+            grid.parent.scroll_y = 1  # Ir al tope
 
     def _compute_card_metrics(self):
         available_width = self.width or Window.width
@@ -845,13 +973,18 @@ class CardListScreen(Screen):
         raise NotImplementedError
 
 # imagen por defecto si no hay en BD
+
+
 def _img_or_default(src: str, default="../assets/img/luna.jpg"):
     return src if src else default
 
 # ---ProyectosScreen ahora lee desde SQLite con gestor.py ---
+
+
 class ProyectosScreen(CardListScreen):
     grid_id = "proyectos_grid"
 
+    # ──────────────────────────────── GENERAL ────────────────────────────────
     def abrir_enlace(self, url):
         import webbrowser
         webbrowser.open(url)
@@ -860,33 +993,24 @@ class ProyectosScreen(CardListScreen):
         self.manager.current = "home"
 
     def _card_data(self):
-        # Lee proyectos desde la BD
         filas = gestor.listar_proyectos()
         data = []
         for r in filas:
             data.append({
+                "id": r.get("id"),
                 "titulo": r.get("titulo", "(Sin título)"),
                 "descripcion": r.get("descripcion", ""),
                 "imagen": _img_or_default(r.get("imagen")),
                 "link": r.get("link", ""),
             })
-
-        # ✅ Si no hay proyectos, muestra dos tarjetas de ejemplo
         if not data:
-            data = [
-                {
-                    "titulo": "Aún no hay proyectos",
-                    "descripcion": "Agrega un proyecto para verlo aquí.",
-                    "imagen": "../assets/img/luna.jpg",
-                    "link": "https://www.google.com",
-                },
-                {
-                    "titulo": "Aún no hay proyectos",
-                    "descripcion": "Agrega un proyecto para verlo aquí.",
-                    "imagen": "../assets/img/luna.jpg",
-                    "link": "https://www.google.com",
-                },
-            ]
+            data = [{
+                "id": None,
+                "titulo": "Aún no hay proyectos",
+                "descripcion": "Agrega un proyecto para verlo aquí.",
+                "imagen": "../assets/img/luna.jpg",
+                "link": "",
+            }]
         return data
 
     def _build_card(self, data, card_height, image_height):
@@ -898,152 +1022,365 @@ class ProyectosScreen(CardListScreen):
             md_bg_color=self.card_bg_color,
         )
 
-        # --- Contenedor principal ---
-        box = MDBoxLayout(
-            orientation="vertical",
-            spacing=dp(12),
-        )
+        box = MDBoxLayout(orientation="vertical", spacing=dp(12))
         box.size_hint_y = None
         box.bind(minimum_height=box.setter("height"))
 
         img = self._make_image(data["imagen"], image_height)
         title = self._make_label(data["titulo"], font_style="H6")
-        description = self._make_label(
-            data["descripcion"],
-            theme_text_color="Secondary",
-            wrap=True,
-        )
+        desc = self._make_label(
+            data["descripcion"], theme_text_color="Secondary", wrap=True)
 
-        bottom_area = RelativeLayout(size_hint_y=None, height=dp(50))
+        bottom = RelativeLayout(size_hint_y=None, height=dp(50))
 
-        # 1️⃣ Botón de basurero (izquierda)
-        delete_btn = SilentIconButton(
-            icon="trash-can" if "trash-can" in self._available_icons() else "close",
-            size_hint=(None, None),
-            size=(dp(36), dp(36)),
-            pos_hint={"x": 0, "center_y": 0.5},
-        )
-        delete_btn.bind(on_release=lambda i, d=data: self.eliminar_proyecto(d))
-        bottom_area.add_widget(delete_btn)
+        # Botón eliminar
+        btn_del = SilentIconButton(
+            icon="trash-can", size_hint=(None, None),
+            size=(dp(36), dp(36)), pos_hint={"x": 0, "center_y": 0.5})
+        btn_del.bind(on_release=lambda *_: self.confirmar_eliminar(data))
+        bottom.add_widget(btn_del)
 
-        # 2️⃣ Botón "Ver más" (centrado)
-        button = SilentFlatButton(
-            text="Ver más",
-            size_hint=(None, None),
-            width=dp(120),
-            height=dp(42),
-            pos_hint={"center_x": 0.5, "center_y": 0.5},
-        )
+        # Botón ver más
+        btn_more = SilentFlatButton(
+            text="Ver más", size_hint=(None, None),
+            width=dp(120), height=dp(42),
+            pos_hint={"center_x": 0.5, "center_y": 0.5})
         if data.get("link"):
-            button.bind(on_release=lambda i, link=data["link"]: self.abrir_enlace(link))
+            btn_more.bind(
+                on_release=lambda *_: self.abrir_enlace(data["link"]))
         else:
-            button.disabled = True
-        bottom_area.add_widget(button)
+            btn_more.disabled = True
+        bottom.add_widget(btn_more)
 
-        # 3️⃣ Botón lápiz (derecha)
-        edit_btn = SilentIconButton(
-            icon="pencil",
-            size_hint=(None, None),
-            size=(dp(36), dp(36)),
-            pos_hint={"right": 1, "center_y": 0.5},
-        )
-        edit_btn.bind(on_release=lambda i, d=data: self.editar_proyecto(d))
-        bottom_area.add_widget(edit_btn)
+        # Botón editar
+        btn_edit = SilentIconButton(
+            icon="pencil", size_hint=(None, None),
+            size=(dp(36), dp(36)), pos_hint={"right": 1, "center_y": 0.5})
+        btn_edit.bind(on_release=lambda *_: self.editar_proyecto(data))
+        bottom.add_widget(btn_edit)
 
-        # Agregar elementos
-        box.add_widget(img)
-        box.add_widget(title)
-        box.add_widget(description)
-        box.add_widget(bottom_area)
-
+        for w in (img, title, desc, bottom):
+            box.add_widget(w)
         card.add_widget(box)
         self._bind_card_height(card, box, card_height)
         return card
 
     def on_enter(self):
-        """Sobrescribe el evento para agregar el botón '+' al final del ScrollView."""
         self.agregar_boton_mas()
 
     def agregar_boton_mas(self):
         grid = self.ids.get(self.grid_id)
         if not grid:
             return
-
-        # Evitar duplicados
         for w in grid.children:
             if hasattr(w, "is_add_button") and w.is_add_button:
                 return
+        container = AnchorLayout(anchor_x="center", anchor_y="center",
+                                 size_hint_y=None, height=dp(90))
+        btn_add = FlatCircularFAB(icon="plus")
+        btn_add.bind(on_release=self.nuevo_proyecto)
+        btn_add.is_add_button = True
+        container.add_widget(btn_add)
+        container.is_add_button = True
+        grid.add_widget(container)
 
-        # 🔹 Contenedor centrado
-        add_container = AnchorLayout(
-            anchor_x="center",
-            anchor_y="center",
-            size_hint_y=None,
-            height=dp(90),  # ajusta la altura si quieres más espacio
-            padding=(0, dp(1), 0, 0),
-        )
-
-        # 🔹 Botón circular plano (sin elevación, sin ripple)
-        add_button = FlatCircularFAB(
-            icon="plus",
-        )
-        add_button.bind(on_release=self.nuevo_proyecto)
-        add_button.is_add_button = True
-
-        add_container.add_widget(add_button)
-        add_container.is_add_button = True
-
-        grid.add_widget(add_container)
-
+    # ──────────────────────────────── NUEVO PROYECTO ────────────────────────────────
     def nuevo_proyecto(self, *args):
-        print("➕ Nuevo proyecto")
+        content = MDBoxLayout(
+            orientation="vertical", spacing=dp(10),
+            padding=[dp(20), dp(5), dp(20), dp(15)], adaptive_height=True)
 
+        titulo_field = MDTextField(hint_text="Título del proyecto",
+                                   size_hint_y=None, height=dp(56))
+        desc_field = MDTextField(hint_text="Descripción",
+                                 size_hint_y=None, height=dp(56))
+        link_field = MDTextField(hint_text="URL (opcional)",
+                                 size_hint_y=None, height=dp(56))
+        imagen_field = MDTextField(
+            hint_text="Ruta imagen (opcional)",
+            text="../assets/img/luna.jpg", size_hint_y=None, height=dp(56))
+        btn_img = SilentRaisedButton(
+            text="Seleccionar imagen", size_hint_y=None, height=dp(40))
+        btn_img.bind(
+            on_release=lambda *_: self.abrir_filechooser(imagen_field))
+
+        for w in (titulo_field, desc_field, link_field, imagen_field, btn_img):
+            content.add_widget(w)
+
+        btn_cancelar = SilentDialogButton(text="Cancelar")
+        btn_guardar = SilentDialogButton(text="Guardar")
+
+        dialog = MDDialog(
+            title="Nuevo proyecto", type="custom",
+            content_cls=content, buttons=[btn_cancelar, btn_guardar])
+
+        def confirmar_agregar(dlg):
+            confirm = MDDialog(
+                title="Confirmar acción",
+                text="¿Seguro que quieres agregar este proyecto?",
+                buttons=[
+                    SilentDialogButton(
+                        text="No", on_release=lambda *_: confirm.dismiss()),
+                    SilentDialogButton(
+                        text="Sí",
+                        on_release=lambda *_: (
+                            self.guardar_nuevo_proyecto(
+                                dlg, titulo_field, desc_field, link_field, imagen_field),
+                            confirm.dismiss(),
+                            self.mostrar_mensaje_global(
+                                "Proyecto agregado con éxito")
+                        )
+                    )
+                ]
+            )
+            confirm.open()
+
+        btn_cancelar.bind(on_release=lambda *_: dialog.dismiss())
+        btn_guardar.bind(on_release=lambda *_: confirmar_agregar(dialog))
+        dialog.open()
+
+    def guardar_nuevo_proyecto(self, dlg, titulo_field, desc_field, link_field, imagen_field):
+        titulo = titulo_field.text.strip()
+        descripcion = desc_field.text.strip()
+        link = link_field.text.strip()
+        imagen = imagen_field.text.strip() or None
+        if not titulo:
+            self.mostrar_mensaje_global("⚠️ El título es obligatorio")
+            return
+        from kivymd.app import MDApp
+        app = MDApp.get_running_app()
+        usuario = getattr(app, "usuario_actual", None)
+        if not usuario:
+            dlg.dismiss()
+            return
+        id_usuario = usuario.get("id_usuario")
+        gestor.crear_proyecto(titulo, descripcion, imagen, link, id_usuario)
+        dlg.dismiss()
+        self._refresh_trigger()
+
+    # ──────────────────────────────── EDITAR PROYECTO ────────────────────────────────
     def editar_proyecto(self, data):
-        print(f"🖋 Editar proyecto: {data.get('titulo')}")
+        pid = data.get("id")
+        if not pid:
+            return
 
-    def eliminar_proyecto(self, data):
-        print(f"🗑 Eliminar proyecto: {data.get('titulo')}")
+        scroll = ScrollView(size_hint=(1, None), size=(Window.width, dp(400)))
+        content = MDBoxLayout(
+            orientation="vertical", spacing=dp(10),
+            padding=[dp(20), dp(5), dp(20), dp(15)], size_hint_y=None)
+        content.bind(minimum_height=content.setter("height"))
+        scroll.add_widget(content)
 
-    def _available_icons(self):
+        titulo_field = MDTextField(hint_text="Título", text=data.get(
+            "titulo", ""), size_hint_y=None, height=dp(56))
+        desc_field = MDTextField(hint_text="Descripción", text=data.get(
+            "descripcion", ""), size_hint_y=None, height=dp(56))
+        link_field = MDTextField(hint_text="URL", text=data.get(
+            "link", ""), size_hint_y=None, height=dp(56))
+        imagen_field = MDTextField(hint_text="Ruta imagen", text=data.get(
+            "imagen", ""), size_hint_y=None, height=dp(56))
+        btn_img = SilentRaisedButton(
+            text="Seleccionar nueva imagen", size_hint_y=None, height=dp(40))
+        btn_img.bind(
+            on_release=lambda *_: self.abrir_filechooser(imagen_field))
+
+        for w in (titulo_field, desc_field, link_field, imagen_field, btn_img):
+            content.add_widget(w)
+
+        btn_cancelar = SilentDialogButton(text="Cancelar")
+        btn_guardar = SilentDialogButton(text="Guardar")
+
+        dialog = MDDialog(
+            title="Editar proyecto", type="custom",
+            content_cls=scroll, buttons=[btn_cancelar, btn_guardar])
+
+        def confirmar_guardado(dlg):
+            confirm = MDDialog(
+                title="Confirmar acción",
+                text="¿Estás seguro que quieres guardar los cambios?",
+                buttons=[
+                    SilentDialogButton(
+                        text="No", on_release=lambda *_: confirm.dismiss()),
+                    SilentDialogButton(
+                        text="Sí",
+                        on_release=lambda *_: (
+                            self.guardar_cambios_proyecto(
+                                pid, titulo_field, desc_field, link_field, imagen_field),
+                            dlg.dismiss(),
+                            confirm.dismiss(),
+                            self.mostrar_mensaje_global(
+                                "Cambios guardados con éxito")
+                        )
+                    )
+                ]
+            )
+            confirm.open()
+
+        btn_cancelar.bind(on_release=lambda *_: dialog.dismiss())
+        btn_guardar.bind(on_release=lambda *_: confirmar_guardado(dialog))
+        dialog.open()
+
+    def guardar_cambios_proyecto(self, pid, titulo_field, desc_field, link_field, imagen_field):
+        gestor.actualizar_proyecto(pid,
+                                   titulo=titulo_field.text.strip(),
+                                   descripcion=desc_field.text.strip(),
+                                   link=link_field.text.strip(),
+                                   imagen=imagen_field.text.strip())
+        self._refresh_trigger()
+
+    # ──────────────────────────────── ELIMINAR PROYECTO ────────────────────────────────
+    def confirmar_eliminar(self, data):
+        pid = data.get("id")
+        if not pid:
+            return
+        dialog = MDDialog(
+            title="Confirmar eliminación",
+            text="¿Estás seguro que quieres eliminar este proyecto?",
+            buttons=[
+                SilentDialogButton(
+                    text="No", on_release=lambda *_: dialog.dismiss()),
+                SilentDialogButton(
+                    text="Sí",
+                    on_release=lambda *_: (
+                        self.eliminar_proyecto(pid),
+                        dialog.dismiss(),
+                        self.mostrar_mensaje_global(
+                            "Proyecto eliminado con éxito")
+                    )
+                )
+            ]
+        )
+        dialog.open()
+
+    def eliminar_proyecto(self, pid):
+        gestor.eliminar_proyecto(pid)
+        self._refresh_trigger()
+
+    # ──────────────────────────────── MENSAJE GLOBAL (ÚNICO) ────────────────────────────────
+    def mostrar_mensaje_global(self, mensaje="✅ Acción completada"):
+        """Muestra un banner superior flotante (uniforme para todas las acciones)."""
         try:
-            from kivymd.icon_definitions import md_icons
-            return md_icons.keys()
-        except Exception:
-            return []
+            msg_card = self.ids.proyectos_message
+            msg_label = self.ids.proyectos_message_label
+        except Exception as e:
+            print("⚠️ No se encontraron los IDs del mensaje global:", e)
+            return
 
-# --- 🔄 CAMBIADO: HabilidadesScreen ahora lee desde SQLite con gestor.py ---
+        msg_label.text = mensaje
+        Animation.cancel_all(msg_card)
+        msg_card.opacity = 1
+
+        anim_entrada = Animation(
+            pos_hint={"center_x": 0.5, "top": 0.97}, d=0.38, t="out_back")
+        anim_entrada.start(msg_card)
+        Clock.schedule_once(lambda dt: self.ocultar_mensaje_global(), 3.2)
+
+    def ocultar_mensaje_global(self):
+        """Oculta el banner animado."""
+        try:
+            msg_card = self.ids.proyectos_message
+        except Exception as e:
+            print("⚠️ No se encontraron los IDs del mensaje global (ocultar):", e)
+            return
+
+        Animation.cancel_all(msg_card)
+        anim_salida = Animation(
+            pos_hint={"center_x": 0.5, "top": 1.12},
+            opacity=0, d=0.32, t="in_back")
+        anim_salida.start(msg_card)
+
+    # ──────────────────────────────── FILECHOOSER ────────────────────────────────
+    def abrir_filechooser(self, imagen_field, *_):
+        from kivy.utils import platform
+        from kivy.uix.popup import Popup
+        from kivy.uix.filechooser import FileChooserIconView
+        from kivy.uix.boxlayout import BoxLayout
+        from kivy.uix.button import Button
+        from pathlib import Path
+        print("📁 Abriendo selector de imagen...")
+        if platform == "android":
+            try:
+                from plyer import filechooser
+                file_path = filechooser.open_file(
+                    title="Selecciona una imagen",
+                    filters=[("Imágenes", "*.jpg;*.jpeg;*.png;*.webp")])
+                if file_path:
+                    ruta = file_path[0]
+                    imagen_field.text = ruta
+                    print(f"✅ Imagen seleccionada (Android): {ruta}")
+            except Exception as e:
+                print("⚠️ Error al abrir filechooser Android:", e)
+            return
+
+        chooser = FileChooserIconView(
+            filters=["*.png", "*.jpg", "*.jpeg", "*.webp"],
+            show_hidden=True, dirselect=False)
+        chooser.multiselect = False
+        chooser.path = str(Path.home())
+
+        layout = BoxLayout(orientation="vertical", spacing=5)
+        layout.add_widget(chooser)
+
+        botones = BoxLayout(size_hint_y=None, height=dp(48), spacing=5)
+        btn_cancelar_fc = Button(text="Cancelar")
+        btn_aceptar_fc = Button(text="Seleccionar")
+        botones.add_widget(btn_cancelar_fc)
+        botones.add_widget(btn_aceptar_fc)
+        layout.add_widget(botones)
+
+        popup = Popup(
+            title="Selecciona una imagen",
+            content=layout, size_hint=(0.9, 0.9))
+
+        def confirmar_seleccion(*_):
+            if chooser.selection:
+                ruta = chooser.selection[0]
+                imagen_field.text = ruta
+                print(f"✅ Imagen seleccionada (PC): {ruta}")
+            popup.dismiss()
+
+        btn_cancelar_fc.bind(on_release=lambda *_: popup.dismiss())
+        btn_aceptar_fc.bind(on_release=confirmar_seleccion)
+        popup.open()
+
+
 class HabilidadesScreen(CardListScreen):
     grid_id = "habilidades_grid"
 
+    # ──────────────────────────────── DATOS ────────────────────────────────
     def _card_data(self):
         filas = gestor.listar_habilidades()
         data = []
         for r in filas:
             data.append({
+                "id": r.get("id"),
                 "titulo": r.get("nombre", "(Sin nombre)"),
                 "nivel": f"Nivel: {r.get('nivel', 1)}",
+                "nivel_valor": r.get("nivel", 1),
                 "descripcion": r.get("descripcion", ""),
-                "imagen": "../assets/img/python.jpg",
+                "imagen": _img_or_default(r.get("imagen") or "../assets/img/python.jpg"),
             })
 
-        # ✅ Tarjetas por defecto si no hay habilidades
         if not data:
             data = [
                 {
-                    "titulo": "Python",
-                    "nivel": "Nivel: Avanzado",
-                    "descripcion": "Lenguaje principal para desarrollo backend y automatización.",
+                    "id": None,
+                    "titulo": "Aún no hay habilidades",
+                    "nivel": "Nivel: Intermedio",
+                    "descripcion": "Agrega una habilidad para verla aquí.",
                     "imagen": "../assets/img/python.jpg",
                 },
                 {
-                    "titulo": "HTML",
-                    "nivel": "Nivel: Intermedio",
-                    "descripcion": "Lenguaje de marcado para estructurar páginas web.",
+                    "id": None,
+                    "titulo": "Aún no hay habilidades",
+                    "nivel": "Nivel: Avanzado",
+                    "descripcion": "Agrega una habilidad para verla aquí.",
                     "imagen": "../assets/img/html.jpg",
                 },
             ]
         return data
 
+    # ──────────────────────────────── CONSTRUCCIÓN DE CARD ────────────────────────────────
     def _build_card(self, data, card_height, image_height):
         card = MDCard(
             size_hint=(1, None),
@@ -1053,107 +1390,284 @@ class HabilidadesScreen(CardListScreen):
             md_bg_color=self.card_bg_color,
         )
 
-        box = MDBoxLayout(
-            orientation="vertical",
-            spacing=dp(12),
-        )
+        box = MDBoxLayout(orientation="vertical", spacing=dp(12))
         box.size_hint_y = None
         box.bind(minimum_height=box.setter("height"))
 
         img = self._make_image(data["imagen"], image_height)
         title = self._make_label(data["titulo"], font_style="H6")
         level = self._make_label(data["nivel"], theme_text_color="Secondary")
-        description = self._make_label(
-            data["descripcion"],
-            theme_text_color="Secondary",
-            wrap=True,
-        )
+        desc = self._make_label(
+            data["descripcion"], theme_text_color="Secondary", wrap=True)
 
-        # 🔹 Área inferior con botones editar/eliminar
         bottom_area = RelativeLayout(size_hint_y=None, height=dp(50))
 
-        # 🗑 Botón eliminar
+        # 🗑 Eliminar
         delete_btn = SilentIconButton(
-            icon="trash-can" if "trash-can" in self._available_icons() else "close",
+            icon="trash-can",
             size_hint=(None, None),
             size=(dp(36), dp(36)),
             pos_hint={"x": 0, "center_y": 0.5},
         )
-        delete_btn.bind(on_release=lambda i, d=data: self.eliminar_habilidad(d))
+        delete_btn.bind(on_release=lambda *_: self.confirmar_eliminar(data))
         bottom_area.add_widget(delete_btn)
 
-        # ✏️ Botón editar
+        # ✏️ Editar
         edit_btn = SilentIconButton(
             icon="pencil",
             size_hint=(None, None),
             size=(dp(36), dp(36)),
             pos_hint={"right": 1, "center_y": 0.5},
         )
-        edit_btn.bind(on_release=lambda i, d=data: self.editar_habilidad(d))
+        edit_btn.bind(on_release=lambda *_: self.editar_habilidad(data))
         bottom_area.add_widget(edit_btn)
 
         box.add_widget(img)
         box.add_widget(title)
         box.add_widget(level)
-        box.add_widget(description)
+        box.add_widget(desc)
         box.add_widget(bottom_area)
 
         card.add_widget(box)
         self._bind_card_height(card, box, card_height)
         return card
 
+    # ──────────────────────────────── BOTÓN AÑADIR ────────────────────────────────
     def on_enter(self):
-        """Agrega el botón '+' al final del ScrollView."""
         self.agregar_boton_mas()
 
     def agregar_boton_mas(self):
         grid = self.ids.get(self.grid_id)
         if not grid:
             return
-
-        # Evitar duplicados
         for w in grid.children:
             if hasattr(w, "is_add_button") and w.is_add_button:
                 return
 
-        # 🔹 Contenedor centrado
         add_container = AnchorLayout(
-            anchor_x="center",
-            anchor_y="center",
-            size_hint_y=None,
-            height=dp(90),  # ajusta la altura si quieres más espacio
-            padding=(0, dp(1), 0, 0),
+            anchor_x="center", anchor_y="center",
+            size_hint_y=None, height=dp(90), padding=(0, dp(1), 0, 0)
         )
 
-        # 🔹 Botón circular plano (sin elevación, sin ripple)
-        add_button = FlatCircularFAB(
-            icon="plus",
-        )
+        add_button = FlatCircularFAB(icon="plus")
         add_button.bind(on_release=self.nueva_habilidad)
         add_button.is_add_button = True
-
         add_container.add_widget(add_button)
         add_container.is_add_button = True
-
         grid.add_widget(add_container)
 
+    # ──────────────────────────────── NUEVA HABILIDAD ────────────────────────────────
     def nueva_habilidad(self, *args):
-        print("➕ Nueva habilidad")
+        content = MDBoxLayout(
+            orientation="vertical", spacing=dp(10),
+            padding=[dp(20), dp(5), dp(20), dp(15)], adaptive_height=True)
 
+        nombre_field = MDTextField(
+            hint_text="Nombre de la habilidad", size_hint_y=None, height=dp(56))
+        nivel_field = MDTextField(
+            hint_text="Nivel (Básico, Intermedio, Avanzado)", size_hint_y=None, height=dp(56))
+        descripcion_field = MDTextField(
+            hint_text="Descripción", size_hint_y=None, height=dp(56))
+        imagen_field = MDTextField(
+            hint_text="Ruta de imagen (opcional)",
+            text="../assets/img/python.jpg", size_hint_y=None, height=dp(56))
+        btn_img = SilentRaisedButton(
+            text="Seleccionar imagen", size_hint_y=None, height=dp(40))
+        btn_img.bind(
+            on_release=lambda *_: self.abrir_filechooser(imagen_field))
+
+        for w in (nombre_field, nivel_field, descripcion_field, imagen_field, btn_img):
+            content.add_widget(w)
+
+        btn_cancelar = SilentDialogButton(text="Cancelar")
+        btn_guardar = SilentDialogButton(text="Guardar")
+
+        dialog = MDDialog(title="Nueva habilidad", type="custom",
+                          content_cls=content, buttons=[btn_cancelar, btn_guardar])
+
+        def confirmar_guardado(dlg):
+            confirm = MDDialog(
+                title="Confirmar acción",
+                text="¿Deseas agregar esta habilidad?",
+                buttons=[
+                    SilentDialogButton(
+                        text="No", on_release=lambda *_: confirm.dismiss()),
+                    SilentDialogButton(
+                        text="Sí",
+                        on_release=lambda *_: (
+                            self.guardar_habilidad(
+                                dlg, nombre_field, nivel_field, descripcion_field, imagen_field),
+                            confirm.dismiss(),
+                            self.mostrar_mensaje_global(
+                                "Habilidad agregada con éxito")
+                        )
+                    )
+                ]
+            )
+            confirm.open()
+
+        btn_cancelar.bind(on_release=lambda *_: dialog.dismiss())
+        btn_guardar.bind(on_release=lambda *_: confirmar_guardado(dialog))
+        dialog.open()
+
+    def guardar_habilidad(self, dlg, nombre_field, nivel_field, descripcion_field, imagen_field):
+        nombre = nombre_field.text.strip()
+        nivel = nivel_field.text.strip()
+        descripcion = descripcion_field.text.strip()
+        imagen = imagen_field.text.strip() or None
+
+        if not nombre:
+            self.mostrar_mensaje_global("⚠️ El nombre es obligatorio")
+            return
+
+        from kivymd.app import MDApp
+        app = MDApp.get_running_app()
+        usuario = getattr(app, "usuario_actual", None)
+        if not usuario:
+            dlg.dismiss()
+            return
+
+        id_usuario = usuario.get("id_usuario")
+        gestor.crear_habilidad(nombre, nivel, descripcion, imagen, id_usuario)
+        dlg.dismiss()
+        self._refresh_trigger()
+
+    # ──────────────────────────────── EDITAR ────────────────────────────────
     def editar_habilidad(self, data):
-        print(f"🖋 Editar habilidad: {data.get('titulo')}")
+        hid = data.get("id")
+        if not hid:
+            self.mostrar_mensaje_global("No puedes editar ejemplos")
+            return
 
-    def eliminar_habilidad(self, data):
-        print(f"🗑 Eliminar habilidad: {data.get('titulo')}")
+        scroll = ScrollView(size_hint=(1, None), size=(Window.width, dp(400)))
+        content = MDBoxLayout(
+            orientation="vertical", spacing=dp(10),
+            padding=[dp(20), dp(5), dp(20), dp(15)], size_hint_y=None)
+        content.bind(minimum_height=content.setter("height"))
+        scroll.add_widget(content)
 
-    def _available_icons(self):
+        nombre_field = MDTextField(hint_text="Nombre", text=data.get("titulo", ""),
+                                   size_hint_y=None, height=dp(56))
+        nivel_field = MDTextField(hint_text="Nivel", text=str(data.get("nivel_valor", "")),
+                                  size_hint_y=None, height=dp(56))
+        descripcion_field = MDTextField(hint_text="Descripción", text=data.get("descripcion", ""),
+                                        size_hint_y=None, height=dp(56))
+        imagen_field = MDTextField(hint_text="Ruta de imagen", text=data.get("imagen", ""),
+                                   size_hint_y=None, height=dp(56))
+        btn_img = SilentRaisedButton(text="Seleccionar nueva imagen",
+                                     size_hint_y=None, height=dp(40))
+        btn_img.bind(
+            on_release=lambda *_: self.abrir_filechooser(imagen_field))
+
+        for w in (nombre_field, nivel_field, descripcion_field, imagen_field, btn_img):
+            content.add_widget(w)
+
+        btn_cancelar = SilentDialogButton(text="Cancelar")
+        btn_guardar = SilentDialogButton(text="Guardar")
+
+        dialog = MDDialog(title="Editar habilidad", type="custom",
+                          content_cls=scroll, buttons=[btn_cancelar, btn_guardar])
+
+        def confirmar_guardado(dlg):
+            confirm = MDDialog(
+                title="Confirmar acción",
+                text="¿Guardar los cambios realizados?",
+                buttons=[
+                    SilentDialogButton(
+                        text="No", on_release=lambda *_: confirm.dismiss()),
+                    SilentDialogButton(
+                        text="Sí",
+                        on_release=lambda *_: (
+                            self.guardar_cambios(
+                                hid, nombre_field, nivel_field, descripcion_field, imagen_field),
+                            dlg.dismiss(),
+                            confirm.dismiss(),
+                            self.mostrar_mensaje_global(
+                                "Cambios guardados con éxito")
+                        )
+                    )
+                ]
+            )
+            confirm.open()
+
+        btn_cancelar.bind(on_release=lambda *_: dialog.dismiss())
+        btn_guardar.bind(on_release=lambda *_: confirmar_guardado(dialog))
+        dialog.open()
+
+    def guardar_cambios(self, hid, nombre_field, nivel_field, descripcion_field, imagen_field):
+        gestor.actualizar_habilidad(
+            hid,
+            nombre=nombre_field.text.strip(),
+            nivel=nivel_field.text.strip(),
+            descripcion=descripcion_field.text.strip(),
+            imagen=imagen_field.text.strip()
+        )
+        self._refresh_trigger()
+
+    # ──────────────────────────────── ELIMINAR ────────────────────────────────
+    def confirmar_eliminar(self, data):
+        hid = data.get("id")
+        if not hid:
+            self.mostrar_mensaje_global("No puedes eliminar ejemplos")
+            return
+
+        dialog = MDDialog(
+            title="Confirmar eliminación",
+            text="¿Seguro que deseas eliminar esta habilidad?",
+            buttons=[
+                SilentDialogButton(
+                    text="No", on_release=lambda *_: dialog.dismiss()),
+                SilentDialogButton(
+                    text="Sí",
+                    on_release=lambda *_: (
+                        self.eliminar_habilidad(hid),
+                        dialog.dismiss(),
+                        self.mostrar_mensaje_global(
+                            "Habilidad eliminada con éxito")
+                    )
+                )
+            ]
+        )
+        dialog.open()
+
+    def eliminar_habilidad(self, hid):
+        gestor.eliminar_habilidad(hid)
+        self._refresh_trigger()
+
+    # ──────────────────────────────── MENSAJE GLOBAL ────────────────────────────────
+    def mostrar_mensaje_global(self, mensaje="✅ Acción completada"):
+        """Muestra un banner flotante sobre el título 'Habilidades'."""
         try:
-            from kivymd.icon_definitions import md_icons
-            return md_icons.keys()
-        except Exception:
-            return []
+            msg_card = self.ids.habilidades_message
+            msg_label = self.ids.habilidades_message_label
+        except Exception as e:
+            print("⚠️ No se encontraron los IDs del mensaje global:", e)
+            return
 
-# --- 🔄 CAMBIADO: build() ahora inicializa la BD y no fuerza tema/colores ---
+        msg_label.text = mensaje
+        Animation.cancel_all(msg_card)
+        msg_card.opacity = 1
+
+        anim_entrada = Animation(
+            pos_hint={"center_x": 0.5, "top": 0.97}, d=0.38, t="out_back")
+        anim_entrada.start(msg_card)
+        Clock.schedule_once(lambda dt: self.ocultar_mensaje_global(), 3.2)
+
+    def ocultar_mensaje_global(self):
+        """Oculta el banner animado."""
+        try:
+            msg_card = self.ids.habilidades_message
+        except Exception as e:
+            print("⚠️ No se encontraron los IDs del mensaje global (ocultar):", e)
+            return
+
+        Animation.cancel_all(msg_card)
+        anim_salida = Animation(
+            pos_hint={"center_x": 0.5, "top": 1.12},
+            opacity=0, d=0.32, t="in_back")
+        anim_salida.start(msg_card)
+
+
 class PortafolioApp(MDApp):
     def build(self):
         # Inicializa la base de datos usando el schema.sql si existe
@@ -1210,6 +1724,8 @@ class PortafolioApp(MDApp):
         if usuario:
             self.set_usuario_actual(usuario)
             self.root.ids.screen_manager.current = "home"
+
+
 # --- 🔄 FIN CAMBIO build() ---
 if __name__ == "__main__":
     PortafolioApp().run()
