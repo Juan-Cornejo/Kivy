@@ -14,9 +14,6 @@ FloatLayout:
 
     MDNavigationLayout:
 
-
-    MDNavigationLayout:
-
         ScreenManager:
             id: screen_manager
 
@@ -149,6 +146,14 @@ FloatLayout:
             SilentRaisedButton:
                 text: "Ingresar"
                 on_release: root.login()
+                size_hint: None, None
+                size: dp(350), dp(70)
+                pos_hint: {"center_x": 0.5}  # solo centrado horizontal
+                font_size: "18sp"
+                elevation: 1.8
+
+            SilentRaisedButton:
+                text: "Registrar"
                 size_hint: None, None
                 size: dp(350), dp(70)
                 pos_hint: {"center_x": 0.5}  # solo centrado horizontal

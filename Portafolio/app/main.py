@@ -1666,6 +1666,60 @@ class HabilidadesScreen(CardListScreen):
             pos_hint={"center_x": 0.5, "top": 1.12},
             opacity=0, d=0.32, t="in_back")
         anim_salida.start(msg_card)
+        
+    # ──────────────────────────────── FILECHOOSER ────────────────────────────────
+    def abrir_filechooser(self, imagen_field, *_):
+        from kivy.utils import platform
+        from kivy.uix.popup import Popup
+        from kivy.uix.filechooser import FileChooserIconView
+        from kivy.uix.boxlayout import BoxLayout
+        from kivy.uix.button import Button
+        from pathlib import Path
+        print("📁 Abriendo selector de imagen...")
+        if platform == "android":
+            try:
+                from plyer import filechooser
+                file_path = filechooser.open_file(
+                    title="Selecciona una imagen",
+                    filters=[("Imágenes", "*.jpg;*.jpeg;*.png;*.webp")])
+                if file_path:
+                    ruta = file_path[0]
+                    imagen_field.text = ruta
+                    print(f"✅ Imagen seleccionada (Android): {ruta}")
+            except Exception as e:
+                print("⚠️ Error al abrir filechooser Android:", e)
+            return
+
+        chooser = FileChooserIconView(
+            filters=["*.png", "*.jpg", "*.jpeg", "*.webp"],
+            show_hidden=True, dirselect=False)
+        chooser.multiselect = False
+        chooser.path = str(Path.home())
+
+        layout = BoxLayout(orientation="vertical", spacing=5)
+        layout.add_widget(chooser)
+
+        botones = BoxLayout(size_hint_y=None, height=dp(48), spacing=5)
+        btn_cancelar_fc = Button(text="Cancelar")
+        btn_aceptar_fc = Button(text="Seleccionar")
+        botones.add_widget(btn_cancelar_fc)
+        botones.add_widget(btn_aceptar_fc)
+        layout.add_widget(botones)
+
+        popup = Popup(
+            title="Selecciona una imagen",
+            content=layout, size_hint=(0.9, 0.9))
+
+        def confirmar_seleccion(*_):
+            if chooser.selection:
+                ruta = chooser.selection[0]
+                imagen_field.text = ruta
+                print(f"✅ Imagen seleccionada (PC): {ruta}")
+            popup.dismiss()
+
+        btn_cancelar_fc.bind(on_release=lambda *_: popup.dismiss())
+        btn_aceptar_fc.bind(on_release=confirmar_seleccion)
+        popup.open()
 
 
 class PortafolioApp(MDApp):
