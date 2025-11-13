@@ -25,7 +25,7 @@ Esto facilita almacenar y gestionar dinámicamente la información de proyectos,
 - 💡 **Visualización dinámica de proyectos** con imágenes, descripciones y enlaces a repositorios (por ejemplo, GitHub).
 - 🧭 **Scroll** vertical para explorar múltiples proyectos o habilidades.
 - 🎨 **Diseño responsivo y minimalista** gracias a los componentes de KivyMD.
-- 💾 **Persistencia de datos mediante SQLite3** _(en desarrollo)_, para mantener los registros de proyectos y habilidades de forma permanente.
+- 💾 **Persistencia de datos mediante SQLite3** para mantener los registros de proyectos y habilidades de forma permanente.
 
 ---
 
