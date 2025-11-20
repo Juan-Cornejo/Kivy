@@ -42,7 +42,7 @@ from kivy.graphics import Color, Ellipse
 from kivymd.uix.button import MDFloatingActionButton
 from app import gestor  # gestor.py maneja SQLite (conexión y CRUD)
 
-# "python -m app.main" en consola para ejecutar proyecto
+# Abrir terminal, cd Portafolio y luego ingresar el comando "python -m app.main" para ejecutar proyecto
 
 # Desktop testing window size
 if platform in ("win", "linux", "macosx"):
