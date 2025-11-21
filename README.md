@@ -47,8 +47,9 @@ Para instalar y ejecutar el proyecto, sigue los pasos indicados a continuación:
    2. **python -m venv kivy_venv** (crea el entorno virtual)
    3. Terminal Bash: **source kivy_venv/Scripts/activate** (activa el entorno virtual)
 
-3. Una vez instalado el entorno y las dependencias, navega a la carpeta del proyecto desde la terminal con el comando **cd Portafolio**
-4. Finalmente, ejecuta el proyecto con el comando **python -m app.main**
+3. Una vez instalado el entorno y las dependencias ahora tienes que instalar kivy con el siguiente comando: **python -m pip install "kivy[full]"**
+4. Despues de que kivy ya este instalado navega a la carpeta del proyecto desde la terminal con el comando **cd Portafolio**
+5. Finalmente, ejecuta el proyecto con el comando **python -m app.main**
 
 ---
 
