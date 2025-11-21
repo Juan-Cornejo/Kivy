@@ -1,14 +1,10 @@
-# 📱 Portafolio Móvil con Kivy y KivyMD
-
-Aplicación móvil desarrollada con **Python**, utilizando los frameworks **Kivy** y **KivyMD**, que funciona como un **portafolio personal interactivo**.  
-Permite mostrar información del usuario, proyectos realizados, habilidades y enlaces externos, con una navegación sencilla y un diseño minimalista.
-
----
-
 ## 🧠 Descripción General
 
-El proyecto está diseñado para ser **escalable y adaptable**, permitiendo la edición y persistencia de datos mediante **SQLite3**.  
-Esto facilita almacenar y gestionar dinámicamente la información de proyectos, habilidades y otros contenidos personales, sin necesidad de modificar el código fuente.
+Esta es una aplicación móvil desarrollada con **Python**, utilizando los frameworks **Kivy** y **KivyMD**, cuyo propósito es servir como un **portafolio personal interactivo**.
+
+El usuario puede visualizar información personal, proyectos realizados, habilidades, imágenes y enlaces externos, todo con navegación fluida y diseño responsivo.
+
+La aplicación implementa **persistencia de datos con SQLite3**, permitiendo almacenar y cargar información sin necesidad de modificar el código fuente.
 
 ---
 
@@ -26,6 +22,49 @@ Esto facilita almacenar y gestionar dinámicamente la información de proyectos,
 - 🧭 **Scroll** vertical para explorar múltiples proyectos o habilidades.
 - 🎨 **Diseño responsivo y minimalista** gracias a los componentes de KivyMD.
 - 💾 **Persistencia de datos mediante SQLite3** para mantener los registros de proyectos y habilidades de forma permanente.
+- ⚙️ **Edición** mediante un boton de tuerca que activa los lapices para editar los campos de la pantalla principal y sobre mí.
+
+---
+
+## 🛠️ Herramientas Necesarias
+
+Antes de comenzar con la instalación, asegúrate de tener las siguientes **herramientas instaladas** en tu equipo:
+
+- **Python**
+- **Git**
+- **Visual Studio Code**
+
+---
+
+## 🔨 Instalación del Proyecto
+
+Para instalar y ejecutar el proyecto, sigue los pasos indicados a continuación:
+
+1. **Clonar el repositorio** utilizando Visual Studio Code
+2. En la terminal, **ejecuta los siguientes comandos** para preparar el entorno virtual e instalar las dependencias necesarias:
+
+   1. **python -m pip install --upgrade pip setuptools virtualenv**
+   2. **python -m venv kivy_venv** (crea el entorno virtual)
+   3. Terminal Bash: **source kivy_venv/Scripts/activate** (activa el entorno virtual)
+
+3. Una vez instalado el entorno y las dependencias, navega a la carpeta del proyecto desde la terminal con el comando **cd Portafolio**
+4. Finalmente, ejecuta el proyecto con el comando **python -m app.main**
+
+---
+
+## 📱 Flujo de Uso
+
+1. El usuario accede al login. (correo: admin@gmail.com, clave: 1234)
+2. Si las credenciales son correctas, se muestra la pantalla principal.
+3. Desde el menú lateral puede acceder a:
+
+- Inicio
+- Sobre mí
+- Proyectos
+- Habilidades
+
+4. Los proyectos y habilidades se cargan dinámicamente desde la base de datos.
+5. El usuario puede cerrar sesión desde el drawer.
 
 ---
 
